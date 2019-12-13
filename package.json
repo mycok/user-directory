@@ -8,6 +8,7 @@
     "build": "rimraf dist && babel ./src -d ./dist",
     "serve": "yarn run build && dotenv -e ./envs/.env node ./dist/index.js",
     "dev": "nodemon -w ./src --exec yarn run serve",
+    "test:server": "dotenv -e ./envs/test.env yarn run dev",
     "fix": "eslint ./spec ./src --fix",
     "lint": "eslint ./spec ./src"
   },

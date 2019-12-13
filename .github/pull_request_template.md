@@ -1,10 +1,10 @@
 #### What does this PR do
 
-#### Describe the tasks that support your implementation
+#### Tasks that support your implementation
 
-#### Describe the changes made to the existing code if any
+#### Changes made to the existing code if any
 
-#### Select the tests recorded for this feature / fix
+#### Tests recorded for this feature / fix
 
 - [ ] unit tests
 
@@ -16,13 +16,12 @@
 
 #### How can this solution be manually tested
 
-- clone the repository and run `cd hobnob` to change to the project directory
+- clone the repository and run `cd user-directory` to change to the project directory
 - run `yarn install` command to install all the necessary dependencies
 - run `yarn run dev` command to start the development server
-- run `npm test:e2e` command to run tests
+- run `yarn test:server` command to start the testing server
+- run `yarn test:e2e` command to run tests
 
 #### Any background context you want to add
 
-#### Screenshots
-
-#### List the tickets or stories related to this PR
+#### Tickets/Stories related to this PR

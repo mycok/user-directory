@@ -14,14 +14,14 @@ Feature: General
       Examples:
          | method |
          | POST   |
-         | PUT    |
-         | PATCH  |
+         # | PUT    |
+         # | PATCH  |
 
-   Scenario: Content-Type Header Property Should Be Set For Requests With NEmpty Payloads
+   Scenario Outline: Content-Type Header Property Should Be Set For Requests With NonEmpty Payloads
       All requests with non-zero value for their Content-Length header property must have their
       Content-Type property set
 
-      When a client creates a POST request to /users
+      When a client creates a <method> request to /users
       And it attaches a generic non JSON payload
       But without setting the "Content-Type" property
       And it sends the request
@@ -29,13 +29,24 @@ Feature: General
       And the payload of the response should be a JSON object
       And should contain a message property stating that 'The "Content-Type" header property must be set for requests with a non empty payload'
 
-   Scenario: Content-Type Header Should Be Set To 'application/json'
+      Examples:
+         | method |
+         | POST   |
+         # | PUT    |
+         # | PATCH  |
+
+   Scenario Outline: Content-Type Header Should Be Set To 'application/json'
       All requests which have a "Content-Type" header property must have set its value to "application/json"
 
-      When a client creates a POST request to /users
+      When a client creates a <method> request to /users
       And it attaches a generic non JSON payload
       And it sends the request
       Then our API should respond with a 415 HTTP status code
       And the payload of the response should be a JSON object
       And should contain a message property stating that 'The "Content-Type" header property must always be "application/json"'
 
+      Examples:
+         | method |
+         | POST   |
+         # | PUT    |
+         # | PATCH  |
