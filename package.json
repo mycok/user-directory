@@ -4,13 +4,12 @@
   "description": "user directory API",
   "main": "index.js",
   "scripts": {
-    "test": "test",
-    "build": "rimraf dist && babel src -d dist",
-    "serve": "yarn run buld && node dist/index.js",
-    "dev": "nodemon -w src --exec yarn run serve",
-    "fix": "eslint src --fix",
-    "lint": "eslint src",
-    "precommit": "yarn run lint"
+    "test:e2e": "dotenv -e ./envs/test.env -e ./envs/.env cucumber-js -- spec/cucumber/features --require-module @babel/register --require spec/cucumber/steps",
+    "build": "rimraf dist && babel ./src -d ./dist",
+    "serve": "yarn run build && dotenv -e ./envs/.env node ./dist/index.js",
+    "dev": "nodemon -w ./src --exec yarn run serve",
+    "fix": "eslint ./spec ./src --fix",
+    "lint": "eslint ./spec ./src"
   },
   "repository": {
     "type": "git",
@@ -27,16 +26,30 @@
     "url": "https://github.com/mycok/hobnob/issues"
   },
   "homepage": "https://github.com/mycok/hobnob#readme",
+  "husky": {
+    "hooks": {
+      "pre-commit": "yarn run lint"
+    }
+  },
   "devDependencies": {
     "@babel/cli": "^7.7.5",
     "@babel/core": "^7.7.5",
     "@babel/node": "^7.7.4",
     "@babel/preset-env": "^7.7.6",
+    "@babel/register": "^7.7.4",
+    "cucumber": "^6.0.5",
+    "dotenv-cli": "^3.1.0",
     "eslint": "^6.7.2",
     "eslint-config-airbnb-base": "^14.0.0",
     "eslint-plugin-import": "^2.19.1",
     "husky": "^3.1.0",
+    "ndb": "^1.1.5",
     "nodemon": "^2.0.2",
-    "rimraf": "^3.0.0"
+    "rimraf": "^3.0.0",
+    "superagent": "^5.1.2"
+  },
+  "dependencies": {
+    "elasticsearch": "^16.5.0",
+    "express": "^4.17.1"
   }
 }
