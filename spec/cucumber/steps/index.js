@@ -1,15 +1,12 @@
 import assert from 'assert';
-
 import superagent from 'superagent';
 import { When, Then } from 'cucumber';
-import elasticsearch from 'elasticsearch';
+import db from '../../../src/database/elasticsearch-setup';
 
 import { getValidPayload, convertStringToArray } from './utils';
 
 const baseUrl = `${process.env.HOSTNAME}:${process.env.PORT}`;
-const client = new elasticsearch.Client({
-  host: `${process.env.ELASTICSEARCH_PROTOCOL}://${process.env.ELASTICSEARCH_HOSTNAME}:${process.env.ELASTICSEARCH_PORT}`,
-});
+const client = db;
 
 When(/^a client creates a (GET|POST|PATCH|PUT|DELETE|OPTIONS|HEAD) request to ([/\w-:.]+)$/, function (method, path) {
   this.request = superagent(method, `${baseUrl}${path}`);
