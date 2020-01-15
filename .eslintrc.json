@@ -14,9 +14,19 @@
         "ecmaVersion": 2018,
         "sourceType": "module"
     },
+    "overrides": [
+        {
+            "files": ["*.test.js"],
+            "env": {
+                "mocha": true
+            },
+            "rules": {
+                "func-names": "off",
+                "prefer-arrow-callback": "off"
+            }
+        }
+    ],
     "rules": {
-        "func-names": "off",
-        "prefer-arrow-callback": "off",
         "no-useless-escape": "off",
         "no-underscore-dangle": "off",
         "no-unused-vars": "off",

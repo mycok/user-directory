@@ -16,11 +16,20 @@
 
 #### How can this solution be manually tested
 
+##### Development Environment setup
+
 - clone the repository and run `cd user-directory` to change to the project directory
 - run `yarn install` command to install all the necessary dependencies
 - run `yarn run dev` command to start the development server
+
+##### Test Environment setup
+
+- install & start `elasticsearch` from your terminal
 - run `yarn test:server` command to start the testing server
-- run `yarn test:e2e` command to run tests
+- run `yarn test:e2e` command to run e2e tests
+- run `yarn test:unit` command to run unit tests
+- run `yarn test:integration` command to run integration tests
+- run `yarn test` command to run all tests
 
 #### Any background context you want to add
 

@@ -30,12 +30,12 @@ Feature: Create User
       And it sends the request
       Then our API should respond with a 400 HTTP status code
       And the payload of the response should be a JSON object
-      And should contain a message property stating that "Payload must contain atleast an email and password fields"
+      And should contain a message property stating that <message>
 
       Examples:
-      | missingFields |
-      | email |
-      | password |
+      | missingFields | message |
+      | email         | "The '.email' field is missing" |
+      | password      | "The '.password' field is missing" |
 
    Scenario Outline: Request Payload With Properties of Unsupported Type
 
@@ -44,7 +44,7 @@ Feature: Create User
    And it sends the request
    Then our API should respond with a 400 HTTP status code
    And the payload of the response should be a JSON object
-   And should contain a message property stating that "The email and password fields must be of type string"
+   And should contain a message property stating that "The '.<field>' field must be of type <type>"
 
    Examples:
    | field | type |
@@ -58,7 +58,7 @@ Feature: Create User
    And it sends the request
    Then our API should respond with a 400 HTTP status code
    And the payload of the response should be a JSON object
-   And should contain a message property stating that "Please provide a valid email address"
+   And should contain a message property stating that "The '.email' field must be a valid email"
 
    Examples:
    | email |
@@ -73,7 +73,7 @@ Feature: Create User
    And it sends the request
    Then our API should respond with a 400 HTTP status code
    And the payload of the response should be a JSON object
-   And should contain a message property stating that "A password should contain atleast 8 characters with a lowercase, uppercase, a number and a special character"
+   And should contain a message property stating that "The '.password' field should contain atleast 8 characters with a lowercase, uppercase, a number and a special character"
 
    Examples:
    | password |
@@ -91,4 +91,36 @@ Feature: Create User
    And the payload object should be added to the database, grouped under the "user" type
    And the newly created user should be deleted
 
+   Scenario Outline: Invalid Profile
 
+   When a client creates a POST request to /users
+   And it attaches <payload> as payload
+   And it sends the request
+   Then our API should respond with a 400 HTTP status code
+   And the payload of the response should be a JSON object
+   And should contain a message property stating that "<message>"
+
+   Examples:
+   | payload | message |
+   | {"email": "e@ma.il", "password": "pasSword#23", "profile": {"foo": "bar"}} | The '.profile' object does not support the field 'foo' |
+   | {"email": "e@ma.il", "password": "pasSword#23", "profile": {"name": {"first": "jane", "a": "b"}}} | The '.profile.name' object does not support the field 'a' |
+   | {"email": "e@ma.il", "password": "pasSword#23", "profile": {"summary": 0}} | The '.profile.summary' field must be of type string |
+   | {"email": "e@ma.il", "password": "pasSword#23", "profile": {"bio": 0}} | The '.profile.bio' field must be of type string |
+
+   Scenario Outline: Valid User Profile
+
+   When a client creates a POST request to /users
+   And it attaches <payload> as payload
+   And it sends the request
+   Then our API should respond with a 201 HTTP status code
+   And the payload of the response should be a string
+   And the payload object should be added to the database, grouped under the "user" type
+   And the newly created user should be deleted
+
+   Examples:
+   | payload |
+   | {"email": "e@ma.il", "password": "pasSword#23", "profile": {}} |
+   | {"email": "e@ma.il", "password": "pasSword#23", "profile": {"name": {}}} |
+   | {"email": "e@ma.il", "password": "pasSword#23", "profile": {"name": {"first": "Michael"}}} |
+   | {"email": "e@ma.il", "password": "pasSword#23", "profile": {"bio": ""}} |
+   | {"email": "e@ma.il", "password": "pasSword#23", "profile": {"summary": "summary"}} |
