@@ -8,6 +8,15 @@ import { getValidPayload, convertStringToArray } from './utils';
 const baseUrl = `${process.env.HOSTNAME}:${process.env.PORT}`;
 const client = db;
 
+(function resetDB() {
+  client.indices.delete({
+    index: process.env.ELASTICSEARCH_INDEX,
+  }).then((res) => {
+    console.log('resetDB', res);
+  })
+    .catch((err) => console.log('resetDBError', err));
+}());
+
 When(/^a client creates a (GET|POST|PATCH|PUT|DELETE|OPTIONS|HEAD) request to ([/\w-:.]+)$/, function (method, path) {
   this.request = superagent(method, `${baseUrl}${path}`);
 });
@@ -91,6 +100,13 @@ When(/^it attaches a valid (.+) payload$/, function (payloadType) {
   this.requestPayload = getValidPayload(payloadType);
   this.request
     .send(JSON.stringify(this.requestPayload))
+    .set('Content-Type', 'application/json');
+});
+
+When(/^it attaches (.+) as payload$/, function (payload) {
+  this.requestPayload = JSON.parse(payload);
+  this.request
+    .send(payload)
     .set('Content-Type', 'application/json');
 });
 

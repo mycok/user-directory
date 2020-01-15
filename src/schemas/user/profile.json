@@ -1,0 +1,21 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "$id": "http://api.user-directory/schemas/user/profile.json",
+    "title": "User Profile Schema",
+    "description": "For validating client-provided user profile object when creating and/or updating a user",
+    "type": "object",
+    "properties": {
+        "bio": { "type": "string" },
+        "summary": { "type": "string" },
+        "name": {
+            "type": "object",
+            "properties": {
+                "first": { "type": "string" },
+                "middle": { "type": "string" },
+                "last": { "type": "string" }
+            },
+            "additionalProperties": false
+        }
+    },
+    "additionalProperties": false
+}
