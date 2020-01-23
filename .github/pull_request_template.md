@@ -1,6 +1,6 @@
 #### What does this PR do
 
-#### Tasks that support your implementation
+#### Tasks that support this implementation
 
 #### Changes made to the existing code if any
 
@@ -12,9 +12,7 @@
 
 - [ ] integration tests
 
-- [ ] UI tests
-
-#### How can this solution be manually tested
+#### Steps to manually test this implementation
 
 ##### Development Environment setup
 
@@ -30,7 +28,8 @@
 - run `yarn test:unit` command to run unit tests
 - run `yarn test:integration` command to run integration tests
 - run `yarn test` command to run all tests
+- run `test:coverage` command to run all tests with overall test coverage
 
-#### Any background context you want to add
+#### Add background context if any
 
 #### Tickets/Stories related to this PR

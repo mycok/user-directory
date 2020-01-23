@@ -9,6 +9,10 @@
     "test:unit": "mocha 'src/**/*.unit.test.js' --require @babel/register",
     "test:server": "dotenv -e ./envs/test.env yarn run dev",
     "test": "yarn run test:unit && yarn run test:integration && yarn run test:e2e",
+    "test:unit:coverage": "nyc --reporter=html --reporter=text yarn run test:unit",
+    "test:integration:coverage": "nyc --reporter=html --reporter=text yarn run test:integration",
+    "test:e2e:coverage": "nyc --reporter=html --reporter=text yarn run test:e2e",
+    "test:coverage": "nyc --reporter=html --reporter=text yarn run test",
     "build": "rimraf dist && babel -D ./src -d ./dist",
     "serve": "yarn run build && dotenv -e ./envs/.env node ./dist/index.js",
     "dev": "nodemon -w ./src --exec yarn run serve",
@@ -52,6 +56,7 @@
     "mocha": "^7.0.0",
     "ndb": "^1.1.5",
     "nodemon": "^2.0.2",
+    "nyc": "^15.0.0",
     "rimraf": "^3.0.0",
     "sinon": "^8.1.0",
     "superagent": "^5.1.2"
