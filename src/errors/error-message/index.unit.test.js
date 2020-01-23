@@ -60,4 +60,28 @@ describe('generatevalidationErrorMessages functionality', function () {
 
     assert.equal(actualMessage, expectedErrorMessage);
   });
+
+  it('should return the correct message when keyword is "pattern"', function () {
+    const errors = [{
+      keyword: 'pattern',
+      dataPath: '.test.path',
+    }];
+
+    const actualMessage = generateValidationErrorMessages(errors);
+    const expectedErrorMessage = "The '.test.path' field should contain atleast 8 characters with a lowercase, uppercase, a number and a special character";
+
+    assert.equal(actualMessage, expectedErrorMessage);
+  });
+
+  it('should return the correct message when keyword does not match any provided keywords', function () {
+    const errors = [{
+      keyword: 'unknown',
+      dataPath: '.test.path',
+    }];
+
+    const actualMessage = generateValidationErrorMessages(errors);
+    const expectedErrorMessage = 'Invalid error object';
+
+    assert.equal(actualMessage, expectedErrorMessage);
+  });
 });
