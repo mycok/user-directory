@@ -8,14 +8,14 @@ import { getValidPayload, convertStringToArray } from './utils';
 const baseUrl = `${process.env.HOSTNAME}:${process.env.PORT}`;
 const client = db;
 
-(function resetDB() {
-  client.indices.delete({
-    index: process.env.ELASTICSEARCH_INDEX,
-  }).then((res) => {
-    console.log('resetDB', res);
-  })
-    .catch((err) => console.log('resetDBError', err));
-}());
+// (function resetDB() {
+//   client.indices.delete({
+//     index: process.env.ELASTICSEARCH_INDEX,
+//   }).then((res) => {
+//     console.log('resetDB', res);
+//   })
+//     .catch((err) => console.log('resetDBError', err));
+// }());
 
 When(/^a client creates a (GET|POST|PATCH|PUT|DELETE|OPTIONS|HEAD) request to ([/\w-:.]+)$/, function (method, path) {
   this.request = superagent(method, `${baseUrl}${path}`);

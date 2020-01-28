@@ -23,7 +23,7 @@
 ##### Test Environment setup
 
 - install & start `elasticsearch` from your terminal
-- run `yarn test:server` command to start the testing server
+- run `yarn test:run:server` command to start the testing server
 - run `yarn test:e2e` command to run e2e tests
 - run `yarn test:unit` command to run unit tests
 - run `yarn test:integration` command to run integration tests
