@@ -14,9 +14,9 @@
     "test:unit:coverage": "nyc --reporter=html --reporter=text yarn run test:unit",
     "test:integration:coverage": "nyc --reporter=html --reporter=text yarn run test:integration",
     "test:e2e:coverage": "nyc --reporter=html --reporter=text yarn run test:e2e",
-    "test:coverage": "nyc --reporter=html --reporter=text yarn run test",
+    "test:coverage": "nyc --reporter=lcov --reporter=html --reporter=text yarn run test",
     "build": "rimraf dist && babel -D ./src -d ./dist",
-    "serve": "yarn run build && dotenv -e ./envs/.env node ./dist/index.js",
+    "serve": "yarn run build && dotenv -e ./envs/.env pm2 start ./dist/index.js",
     "dev": "yarn run build && dotenv -e ./envs/.env nodemon -w ./src --exec node ./dist/index.js",
     "fix": "eslint ./spec ./src --fix",
     "lint": "eslint ./spec ./src"
