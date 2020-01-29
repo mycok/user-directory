@@ -28,7 +28,7 @@
 - run `yarn test:unit` command to run unit tests
 - run `yarn test:integration` command to run integration tests
 - run `yarn test` command to run all tests
-- run `test:coverage` command to run all tests with overall test coverage
+- run `yarn test:coverage` command to run all tests with overall test coverage
 
 #### Add background context if any
 
