@@ -1,5 +1,5 @@
 {
-  "name": "hobnob",
+  "name": "user-directory",
   "version": "1.0.0",
   "description": "user directory API",
   "main": "index.js",
