@@ -1,15 +1,14 @@
 import assert from 'assert';
 
-import ValidationError from '../../../errors/validation-error';
 import generateResSpy from '../../../tests/spies/res';
-import generateCreateEngineStubs,
-{ CREATE_USER_RESPONSE, VALIDATION_ERROR_MSG, GENERIC_ERROR_MSG } from '../../../tests/stubs/engines/user/create';
-import createUser from '.';
+import generateRetrieveEngineStubs,
+{ RESOLVED_USER_OBJ, NOT_FOUND_ERROR, GENERIC_ERROR }
+  from '../../../tests/stubs/engines/user/retrieve';
+import retrieveUser from '.';
 
-describe('createUser controller functionality', function () {
+describe('retrieveUser controller functionality', function () {
   const req = {};
   const db = {};
-  const validator = {};
 
   let res;
   let engine;
@@ -20,72 +19,36 @@ describe('createUser controller functionality', function () {
 
   describe('when invoked', function () {
     beforeEach(function () {
-      engine = generateCreateEngineStubs().success;
-      return createUser(req, res, db, engine, validator, ValidationError);
+      engine = generateRetrieveEngineStubs().success;
+      return retrieveUser(req, res, db, engine);
     });
 
-    describe('should call the create engine function', function () {
+    describe('should call the retrieve engine function', function () {
       it('once', function () {
         assert(engine.calledOnce);
       });
 
-      it('with req, db, validator and ValidationError as arguments', function () {
-        assert(engine.calledWithExactly(req, db, validator, ValidationError));
+      it('with req, and db as arguments', function () {
+        assert(engine.calledWithExactly(req, db));
       });
     });
   });
   describe('when invoked with a valid request object', function () {
     beforeEach(function () {
-      engine = generateCreateEngineStubs().success;
-      return createUser(req, res, db, engine, validator, ValidationError);
+      engine = generateRetrieveEngineStubs().success;
+      return retrieveUser(req, res, db, engine);
     });
 
     describe('should call res.status()', function () {
       it('once', function () {
         assert(res.status.calledOnce);
       });
-      it('with a 201 status code', function () {
-        assert(res.status.calledWithExactly(201));
+      it('with a 200 status code', function () {
+        assert(res.status.calledWithExactly(200));
       });
     });
 
-    describe('should call res.set()', function () {
-      it('once', function () {
-        assert(res.set.calledOnce);
-      });
-
-      it('with "Content-Type" and "plain/text" arguments', function () {
-        assert(res.set.calledWithExactly('Content-Type', 'text/plain'));
-      });
-    });
-
-    describe('should call res.send()', function () {
-      it('once', function () {
-        assert(res.send.calledOnce);
-      });
-
-      it('should resolve with a user ID result', function () {
-        assert(res.send.calledWithExactly(CREATE_USER_RESPONSE._id));
-      });
-    });
-  });
-
-  describe('when invoked with an invalid request object, it rejects with an error', function () {
-    beforeEach(function () {
-      engine = generateCreateEngineStubs().validationError;
-      return createUser(req, res, db, engine, validator, ValidationError);
-    });
-
-    describe('should call res.status()', function () {
-      it('once', function () {
-        assert(res.status.calledOnce);
-      });
-      it('with a 400 status code', function () {
-        assert(res.status.calledWithExactly(400));
-      });
-    });
-
-    describe('should call res.set()', function () {
+    describe('call res.set()', function () {
       it('once', function () {
         assert(res.set.calledOnce);
       });
@@ -95,21 +58,57 @@ describe('createUser controller functionality', function () {
       });
     });
 
-    describe('should call res.json()', function () {
+    describe('call res.send()', function () {
+      it('once', function () {
+        assert(res.send.calledOnce);
+      });
+
+      it('should resolve with a user object', function () {
+        assert(res.send.calledWithExactly(RESOLVED_USER_OBJ));
+      });
+    });
+  });
+
+  describe('when invoked with a non existing userId', function () {
+    beforeEach(function () {
+      engine = generateRetrieveEngineStubs().notFound;
+      return retrieveUser(req, res, db, engine);
+    });
+
+    describe('it should call res.status()', function () {
+      it('once', function () {
+        assert(res.status.calledOnce);
+      });
+      it('with a 404 status code', function () {
+        assert(res.status.calledWithExactly(404));
+      });
+    });
+
+    describe('call res.set()', function () {
+      it('once', function () {
+        assert(res.set.calledOnce);
+      });
+
+      it('with "Content-Type" and "application/json" arguments', function () {
+        assert(res.set.calledWithExactly('Content-Type', 'application/json'));
+      });
+    });
+
+    describe('call res.json()', function () {
       it('once', function () {
         assert(res.json.calledOnce);
       });
 
       it('with an error message', function () {
-        assert(res.json.calledWithExactly({ message: VALIDATION_ERROR_MSG }));
+        assert(res.json.calledWithExactly({ message: NOT_FOUND_ERROR.message }));
       });
     });
   });
 
-  describe('when createUser controller throws a generic error', function () {
+  describe('when retrieveUser controller throws a generic error', function () {
     beforeEach(function () {
-      engine = generateCreateEngineStubs().genericError;
-      return createUser(req, res, db, engine, validator, ValidationError);
+      engine = generateRetrieveEngineStubs().genericError;
+      return retrieveUser(req, res, db, engine);
     });
 
     describe('should call res.status()', function () {
@@ -137,7 +136,7 @@ describe('createUser controller functionality', function () {
       });
 
       it('with an error message', function () {
-        assert(res.json.calledWithExactly({ message: GENERIC_ERROR_MSG }));
+        assert(res.json.calledWithExactly({ message: GENERIC_ERROR.message }));
       });
     });
   });

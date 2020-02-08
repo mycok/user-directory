@@ -2,6 +2,7 @@ import assert from 'assert';
 import { spy } from 'sinon';
 
 import checkIfContentTypeIsJson from '.';
+import generateResSpy from '../../tests/spies/res';
 
 describe('check if content type is "application/json"', function () {
   let req;
@@ -39,11 +40,7 @@ describe('check if content type is "application/json"', function () {
               'content-type': 'xml',
             },
           };
-          res = {
-            status: spy(),
-            set: spy(),
-            json: spy(),
-          };
+          res = generateResSpy();
           next = spy();
 
           checkIfContentTypeIsJson(req, res, next);

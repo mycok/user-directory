@@ -2,6 +2,7 @@ import assert from 'assert';
 import { spy } from 'sinon';
 
 import errorHandler from '.';
+import generateResSpy from '../../tests/spies/res';
 
 function syntaxErrorFactory(constructor = SyntaxError) {
   const error = new constructor();
@@ -76,11 +77,7 @@ describe('error handler functionality', function () {
     this.beforeEach(function () {
       err = syntaxErrorFactory();
       req = {};
-      res = {
-        status: spy(),
-        set: spy(),
-        json: spy(),
-      };
+      res = generateResSpy();
       next = spy();
 
       errorHandler(err, req, res, next);

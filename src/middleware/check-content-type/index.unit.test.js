@@ -75,6 +75,7 @@ describe('check if content-type is set', function () {
             status: spy(),
             set: spy(),
             json: stub().returns(jsonResValue),
+            send: spy(),
           };
           next = spy();
 

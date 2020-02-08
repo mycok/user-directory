@@ -2,7 +2,7 @@ Feature: Create User
 
    Feature Description:
    Clients should be able to send a request to our API in order to create user accounts.
-   Our API should also validate the structure of the request payload and respond with an
+   Our API should validate the structure of the request payload and respond with an
    appropriate error in case the payload is invalid.
 
    Scenario Outline: Bad Client Requests
@@ -86,10 +86,11 @@ Feature: Create User
    When a client creates a POST request to /users
    And it attaches a valid Create User payload
    And it sends the request
+   And it saves the response text in the context under userId
    Then our API should respond with a 201 HTTP status code
    And the payload of the response should be a string
    And the payload object should be added to the database, grouped under the "user" type
-   And the newly created user should be deleted
+   And the entity of type user, with ID stored under userId, should be deleted
 
    Scenario Outline: Invalid Profile
 
@@ -112,10 +113,11 @@ Feature: Create User
    When a client creates a POST request to /users
    And it attaches <payload> as payload
    And it sends the request
+   And it saves the response text in the context under userId
    Then our API should respond with a 201 HTTP status code
    And the payload of the response should be a string
    And the payload object should be added to the database, grouped under the "user" type
-   And the newly created user should be deleted
+   And the entity of type user, with ID stored under userId, should be deleted
 
    Examples:
    | payload |
