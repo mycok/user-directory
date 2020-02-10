@@ -17,6 +17,7 @@ Feature: Retrieve User
         And it attaches a valid Create User payload
         And it sends the request
         And it saves the response text in the context under userId
+
         When a client creates a GET request to /users/:userId
         And it sends the request
         Then our API should respond with a 200 HTTP status code

@@ -5,7 +5,7 @@ import ValidationError from '../../../errors/validation-error';
 import validate from '../../../validators/user/create/validate';
 import create from '.';
 
-describe('create user engine integration functionality', function () {
+describe('create engine integration', function () {
   let req;
   let promise;
   describe('when invoked with a invalid request', function () {

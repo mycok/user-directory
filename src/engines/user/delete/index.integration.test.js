@@ -1,20 +1,22 @@
 import assert from 'assert';
+
 import db from '../../../database/elasticsearch-setup';
-import retrieve from '.';
+import del from '.';
 
 const USER_ID = 's_FhGnAB-xEYn9oELjj_';
-const RESOLVED_USER_OBJ = {
+const USER_OBJ = {
   email: 'e@ma.il',
 };
+const RESOLVED_RESPONSE_OBJECT = { result: 'deleted' };
 
-describe('retrieve engine integration', function () {
+describe('del engine integration', function () {
   const req = {
     params: { userId: USER_ID },
   };
   let promise;
-  describe('when the requested user does not exist', function () {
+  describe('when the user to be deleted does not exist', function () {
     this.beforeEach(function () {
-      promise = retrieve(req, db);
+      promise = del(req, db);
     });
 
     it('should return a promise that rejects with a not-found error', function () {
@@ -26,34 +28,29 @@ describe('retrieve engine integration', function () {
     });
   });
 
-  describe('when the requested user exists', function () {
+  describe('when the user to be deleted exists', function () {
     this.beforeEach(function () {
       promise = db.index({
         index: process.env.ELASTICSEARCH_INDEX,
         type: 'user',
         id: USER_ID,
-        body: RESOLVED_USER_OBJ,
+        body: USER_OBJ,
+        refresh: true,
       })
-        .then(() => retrieve(req, db));
+        .then(() => del(req, db));
 
       return promise;
     });
 
-    this.afterEach(() => {
-      db.delete({
-        index: process.env.ELASTICSEARCH_INDEX,
-        type: 'user',
-        id: USER_ID,
-      });
-    });
-
-    describe('and the elasticsearch operation is successful', function () {
+    describe('and the delete operation is successful', function () {
       it('should return a promise that resolves', function () {
         return promise.then(() => assert(true));
       });
 
-      it('to a user object', function () {
-        return promise.then((result) => assert.deepEqual(result, RESOLVED_USER_OBJ));
+      it('to an object with a result property', function () {
+        return promise.then(
+          (result) => assert.equal(result.result, RESOLVED_RESPONSE_OBJECT.result),
+        );
       });
     });
   });

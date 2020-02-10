@@ -1,4 +1,5 @@
 import assert from 'assert';
+import { stub } from 'sinon';
 
 import ValidationError from '../../../errors/validation-error';
 import generateResSpy from '../../../tests/spies/res';
@@ -13,6 +14,9 @@ describe('createUser controller functionality', function () {
 
   let res;
   let engine;
+  let successResponse;
+  let errResponse;
+  let promise;
 
   beforeEach(function () {
     res = generateResSpy();
@@ -21,7 +25,11 @@ describe('createUser controller functionality', function () {
   describe('when invoked', function () {
     beforeEach(function () {
       engine = generateCreateEngineStubs().success;
-      return createUser(req, res, db, engine, validator, ValidationError);
+      errResponse = stub().returns({});
+      successResponse = stub().returns({});
+      return createUser(
+        req, res, db, engine, validator, ValidationError, errResponse, successResponse,
+      );
     });
 
     describe('should call the create engine function', function () {
@@ -36,108 +44,76 @@ describe('createUser controller functionality', function () {
   });
   describe('when invoked with a valid request object', function () {
     beforeEach(function () {
+      errResponse = stub().returns({});
+      successResponse = stub().returns(CREATE_USER_RESPONSE._id);
       engine = generateCreateEngineStubs().success;
-      return createUser(req, res, db, engine, validator, ValidationError);
+      promise = createUser(
+        req, res, db, engine, validator, ValidationError, errResponse, successResponse,
+      );
     });
 
-    describe('should call res.status()', function () {
+    describe('should call successResponse()', function () {
       it('once', function () {
-        assert(res.status.calledOnce);
+        assert(successResponse.calledOnce);
       });
-      it('with a 201 status code', function () {
-        assert(res.status.calledWithExactly(201));
+      it('with res, 201, result and content-type as arguments', function () {
+        assert(successResponse.calledWithExactly(res, 201, CREATE_USER_RESPONSE._id, 'text/plain'));
       });
-    });
-
-    describe('should call res.set()', function () {
-      it('once', function () {
-        assert(res.set.calledOnce);
-      });
-
-      it('with "Content-Type" and "plain/text" arguments', function () {
-        assert(res.set.calledWithExactly('Content-Type', 'text/plain'));
-      });
-    });
-
-    describe('should call res.send()', function () {
-      it('once', function () {
-        assert(res.send.calledOnce);
-      });
-
-      it('should resolve with a user ID result', function () {
-        assert(res.send.calledWithExactly(CREATE_USER_RESPONSE._id));
+      it('should return a userId as the response', async function () {
+        const result = await promise;
+        assert.strictEqual(result, CREATE_USER_RESPONSE._id);
       });
     });
   });
 
-  describe('when invoked with an invalid request object, it rejects with an error', function () {
+  describe('when invoked with an invalid request object, it rejects with a validation error', function () {
     beforeEach(function () {
+      errResponse = stub().returns({ message: VALIDATION_ERROR_MSG });
+      successResponse = stub().returns({});
       engine = generateCreateEngineStubs().validationError;
-      return createUser(req, res, db, engine, validator, ValidationError);
+      promise = createUser(
+        req, res, db, engine, validator, ValidationError, errResponse, successResponse,
+      );
     });
 
-    describe('should call res.status()', function () {
+    describe('should call errResponse()', function () {
       it('once', function () {
-        assert(res.status.calledOnce);
-      });
-      it('with a 400 status code', function () {
-        assert(res.status.calledWithExactly(400));
-      });
-    });
-
-    describe('should call res.set()', function () {
-      it('once', function () {
-        assert(res.set.calledOnce);
+        assert(errResponse.calledOnce);
       });
 
-      it('with "Content-Type" and "application/json" arguments', function () {
-        assert(res.set.calledWithExactly('Content-Type', 'application/json'));
-      });
-    });
-
-    describe('should call res.json()', function () {
-      it('once', function () {
-        assert(res.json.calledOnce);
+      it('with res, 400 and message arguments', function () {
+        assert(errResponse.calledWithExactly(res, 400, VALIDATION_ERROR_MSG));
       });
 
-      it('with an error message', function () {
-        assert(res.json.calledWithExactly({ message: VALIDATION_ERROR_MSG }));
+      it('should return a validtion error message as the response', async function () {
+        const result = await promise;
+        assert.strictEqual(result.message, VALIDATION_ERROR_MSG);
       });
     });
   });
 
-  describe('when createUser controller throws a generic error', function () {
+  describe('when invoked and it throws a generic error', function () {
     beforeEach(function () {
+      errResponse = stub().returns({ message: GENERIC_ERROR_MSG });
+      successResponse = stub().returns({});
       engine = generateCreateEngineStubs().genericError;
-      return createUser(req, res, db, engine, validator, ValidationError);
+      promise = createUser(
+        req, res, db, engine, validator, ValidationError, errResponse, successResponse,
+      );
     });
 
-    describe('should call res.status()', function () {
+    describe('should call errResponse()', function () {
       it('once', function () {
-        assert(res.status.calledOnce);
-      });
-      it('with a 500 status code', function () {
-        assert(res.status.calledWithExactly(500));
-      });
-    });
-
-    describe('should call res.set()', function () {
-      it('once', function () {
-        assert(res.set.calledOnce);
+        assert(errResponse.calledOnce);
       });
 
-      it('with "Content-Type" and "application/json" arguments', function () {
-        assert(res.set.calledWithExactly('Content-Type', 'application/json'));
-      });
-    });
-
-    describe('should call res.json()', function () {
-      it('once', function () {
-        assert(res.json.calledOnce);
+      it('with res, 500, and message arguments', function () {
+        assert(errResponse.calledWithExactly(res, 500, GENERIC_ERROR_MSG));
       });
 
-      it('with an error message', function () {
-        assert(res.json.calledWithExactly({ message: GENERIC_ERROR_MSG }));
+      it('should return a generic error message as the response', async function () {
+        const result = await promise;
+        assert.strictEqual(result.message, GENERIC_ERROR_MSG);
       });
     });
   });

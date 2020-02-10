@@ -2,14 +2,14 @@ import assert from 'assert';
 import { stub } from 'sinon';
 
 import generateResSpy from '../../../tests/spies/res';
-import generateRetrieveEngineStubs,
+import generateDeleteEngineStubs,
 {
-  RESOLVED_USER_OBJ, NOT_FOUND_ERROR, GENERIC_ERROR_MSG,
+  RESOLVED_RESPONSE, NOT_FOUND_ERROR, GENERIC_ERROR_MSG,
 }
-  from '../../../tests/stubs/engines/user/retrieve';
-import retrieveUser from '.';
+  from '../../../tests/stubs/engines/user/delete';
+import deleteUser from '.';
 
-describe('retrieveUser controller functionality', function () {
+describe('DeleteUser controller functionality', function () {
   const req = {};
   const db = {};
 
@@ -27,11 +27,11 @@ describe('retrieveUser controller functionality', function () {
     beforeEach(function () {
       errResponse = stub().returns({});
       successResponse = stub().returns({});
-      engine = generateRetrieveEngineStubs().success;
-      return retrieveUser(req, res, db, engine, errResponse, successResponse);
+      engine = generateDeleteEngineStubs().success;
+      return deleteUser(req, res, db, engine, errResponse, successResponse);
     });
 
-    describe('should call the retrieve engine function', function () {
+    describe('should call the del engine function', function () {
       it('once', function () {
         assert(engine.calledOnce);
       });
@@ -44,9 +44,9 @@ describe('retrieveUser controller functionality', function () {
   describe('when invoked with a valid request object', function () {
     beforeEach(function () {
       errResponse = stub().returns({});
-      successResponse = stub().returns(RESOLVED_USER_OBJ);
-      engine = generateRetrieveEngineStubs().success;
-      promise = retrieveUser(req, res, db, engine, errResponse, successResponse);
+      successResponse = stub().returns(RESOLVED_RESPONSE);
+      engine = generateDeleteEngineStubs().success;
+      promise = deleteUser(req, res, db, engine, errResponse, successResponse);
     });
 
     describe('should call successResponse()', function () {
@@ -54,12 +54,11 @@ describe('retrieveUser controller functionality', function () {
         assert(successResponse.calledOnce);
       });
       it('with res, 200, result and content-type arguments', function () {
-        assert(successResponse.calledWithExactly(res, 200, RESOLVED_USER_OBJ));
+        assert(successResponse.calledWithExactly(res, 200, RESOLVED_RESPONSE.result, 'text/plain'));
       });
-
-      it('should return a user object as the response', async function () {
+      it('should return deleted as the response', async function () {
         const result = await promise;
-        assert.strictEqual(result, RESOLVED_USER_OBJ);
+        assert.strictEqual(result, RESOLVED_RESPONSE);
       });
     });
   });
@@ -68,8 +67,8 @@ describe('retrieveUser controller functionality', function () {
     beforeEach(function () {
       errResponse = stub().returns({ message: NOT_FOUND_ERROR.message });
       successResponse = stub().returns({});
-      engine = generateRetrieveEngineStubs().notFound;
-      promise = retrieveUser(req, res, db, engine, errResponse, successResponse);
+      engine = generateDeleteEngineStubs().notFound;
+      promise = deleteUser(req, res, db, engine, errResponse, successResponse);
     });
 
     describe('it should call errResponse()', function () {
@@ -91,8 +90,8 @@ describe('retrieveUser controller functionality', function () {
     beforeEach(function () {
       errResponse = stub().returns({ message: GENERIC_ERROR_MSG });
       successResponse = stub().returns({});
-      engine = generateRetrieveEngineStubs().genericError;
-      promise = retrieveUser(req, res, db, engine, errResponse, successResponse);
+      engine = generateDeleteEngineStubs().genericError;
+      promise = deleteUser(req, res, db, engine, errResponse, successResponse);
     });
 
     describe('should call errResponse()', function () {
