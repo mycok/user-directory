@@ -1,22 +1,16 @@
-function createUser(req, res, db, engine, validator, ValidationError) {
+function createUser(
+  req,
+  res,
+  db,
+  ...[engine, validator, ValidationError, errResponse, successResponse]
+) {
   return engine(req, db, validator, ValidationError)
-    .then((result) => {
-      res.status(201);
-      res.set('Content-Type', 'text/plain');
-      res.send(result._id);
-      return result._id;
-    })
+    .then((result) => successResponse(res, 201, result._id, 'text/plain'))
     .catch((err) => {
       if (err instanceof ValidationError) {
-        res.status(400);
-        res.set('Content-Type', 'application/json');
-        res.json({ message: err.message });
-        return err;
+        return errResponse(res, 400, err.message);
       }
-      res.status(500);
-      res.set('Content-Type', 'application/json');
-      res.json({ message: 'Internal server error' });
-      return err;
+      return errResponse(res, 500, 'Internal server error');
     });
 }
 

@@ -10,7 +10,7 @@ const GENERIC_ERROR = new Error('Internal server error');
 
 const generateGetClientStubs = {
   success() {
-    return stub().returns(Promise.resolve(INDEX_RESOLVED_OBJ));
+    return stub().resolves(INDEX_RESOLVED_OBJ);
   },
   genericError() {
     return stub().returns(Promise.reject(GENERIC_ERROR));

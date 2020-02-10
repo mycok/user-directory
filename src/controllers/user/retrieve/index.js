@@ -1,22 +1,11 @@
-function retrieveUser(req, res, db, engine) {
+function retrieveUser(req, res, db, ...[engine, errResponse, successResponse]) {
   return engine(req, db)
-    .then((result) => {
-      res.status(200);
-      res.set('Content-Type', 'application/json');
-      res.send(result);
-      return result;
-    })
+    .then((result) => successResponse(res, 200, result))
     .catch((err) => {
       if (err.message === 'Not Found') {
-        res.status(404);
-        res.set('Content-Type', 'application/json');
-        res.json({ message: err.message });
-        return err;
+        return errResponse(res, 404, err.message);
       }
-      res.status(500);
-      res.set('Content-Type', 'application/json');
-      res.json({ message: err.message });
-      return err;
+      return errResponse(res, 500, err.message);
     });
 }
 
