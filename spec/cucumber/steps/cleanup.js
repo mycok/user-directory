@@ -14,3 +14,17 @@ Then(/^the entity of type (\w+), with ID stored under ([\w.]+), should be delete
     refresh: true,
   }).then((res) => assert.equal(res.result, 'deleted'));
 });
+
+Then(/^all documents of type (?:"|')([\w-]+)(?:"|') are deleted$/, function (type) {
+  return client.deleteByQuery({
+    index: process.env.ELASTICSEARCH_INDEX,
+    type,
+    body: {
+      query: {
+        match_all: {},
+      },
+    },
+    conflicts: 'proceed',
+    refresh: true,
+  });
+});

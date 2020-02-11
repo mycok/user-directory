@@ -1,5 +1,7 @@
 import assert from 'assert';
+
 import db from '../../../database/elasticsearch-setup';
+import dbQueryParams from '../../../database/dbQueryParams';
 import retrieve from '.';
 
 const USER_ID = 's_FhGnAB-xEYn9oELjj_';
@@ -14,7 +16,7 @@ describe('retrieve engine integration', function () {
   let promise;
   describe('when the requested user does not exist', function () {
     this.beforeEach(function () {
-      promise = retrieve(req, db);
+      promise = retrieve(req, db, dbQueryParams);
     });
 
     it('should return a promise that rejects with a not-found error', function () {
@@ -34,7 +36,7 @@ describe('retrieve engine integration', function () {
         id: USER_ID,
         body: RESOLVED_USER_OBJ,
       })
-        .then(() => retrieve(req, db));
+        .then(() => retrieve(req, db, dbQueryParams));
 
       return promise;
     });
@@ -44,6 +46,7 @@ describe('retrieve engine integration', function () {
         index: process.env.ELASTICSEARCH_INDEX,
         type: 'user',
         id: USER_ID,
+        refresh: true,
       });
     });
 

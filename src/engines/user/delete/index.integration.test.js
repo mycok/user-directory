@@ -1,6 +1,7 @@
 import assert from 'assert';
 
 import db from '../../../database/elasticsearch-setup';
+import dbQueryParams from '../../../database/dbQueryParams';
 import del from '.';
 
 const USER_ID = 's_FhGnAB-xEYn9oELjj_';
@@ -16,7 +17,7 @@ describe('del engine integration', function () {
   let promise;
   describe('when the user to be deleted does not exist', function () {
     this.beforeEach(function () {
-      promise = del(req, db);
+      promise = del(req, db, dbQueryParams);
     });
 
     it('should return a promise that rejects with a not-found error', function () {
@@ -37,7 +38,7 @@ describe('del engine integration', function () {
         body: USER_OBJ,
         refresh: true,
       })
-        .then(() => del(req, db));
+        .then(() => del(req, db, dbQueryParams));
 
       return promise;
     });

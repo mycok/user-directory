@@ -12,6 +12,7 @@ import deleteUser from '.';
 describe('DeleteUser controller functionality', function () {
   const req = {};
   const db = {};
+  const dbQueryParams = {};
 
   let res;
   let engine;
@@ -28,7 +29,7 @@ describe('DeleteUser controller functionality', function () {
       errResponse = stub().returns({});
       successResponse = stub().returns({});
       engine = generateDeleteEngineStubs().success;
-      return deleteUser(req, res, db, engine, errResponse, successResponse);
+      return deleteUser(req, res, db, engine, errResponse, successResponse, dbQueryParams);
     });
 
     describe('should call the del engine function', function () {
@@ -36,8 +37,8 @@ describe('DeleteUser controller functionality', function () {
         assert(engine.calledOnce);
       });
 
-      it('with req, and db as arguments', function () {
-        assert(engine.calledWithExactly(req, db));
+      it('with req, db and dbQueryParams as arguments', function () {
+        assert(engine.calledWithExactly(req, db, dbQueryParams));
       });
     });
   });
@@ -46,7 +47,7 @@ describe('DeleteUser controller functionality', function () {
       errResponse = stub().returns({});
       successResponse = stub().returns(RESOLVED_RESPONSE);
       engine = generateDeleteEngineStubs().success;
-      promise = deleteUser(req, res, db, engine, errResponse, successResponse);
+      promise = deleteUser(req, res, db, engine, errResponse, successResponse, dbQueryParams);
     });
 
     describe('should call successResponse()', function () {
@@ -68,7 +69,7 @@ describe('DeleteUser controller functionality', function () {
       errResponse = stub().returns({ message: NOT_FOUND_ERROR.message });
       successResponse = stub().returns({});
       engine = generateDeleteEngineStubs().notFound;
-      promise = deleteUser(req, res, db, engine, errResponse, successResponse);
+      promise = deleteUser(req, res, db, engine, errResponse, successResponse, dbQueryParams);
     });
 
     describe('it should call errResponse()', function () {
@@ -91,7 +92,7 @@ describe('DeleteUser controller functionality', function () {
       errResponse = stub().returns({ message: GENERIC_ERROR_MSG });
       successResponse = stub().returns({});
       engine = generateDeleteEngineStubs().genericError;
-      promise = deleteUser(req, res, db, engine, errResponse, successResponse);
+      promise = deleteUser(req, res, db, engine, errResponse, successResponse, dbQueryParams);
     });
 
     describe('should call errResponse()', function () {

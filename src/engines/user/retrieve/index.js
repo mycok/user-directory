@@ -1,8 +1,8 @@
-function retrieve(req, db) {
+function retrieve(req, db, dbQueryParams) {
   const { params: { userId } } = req;
+
   return db.get({
-    index: process.env.ELASTICSEARCH_INDEX,
-    type: 'user',
+    ...dbQueryParams,
     id: userId,
     _source_excludes: 'digest',
   })

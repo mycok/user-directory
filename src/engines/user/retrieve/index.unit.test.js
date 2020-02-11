@@ -5,19 +5,39 @@ import generateRetrieveClientStubs,
   from '../../../tests/stubs/elasticsearch/client/get';
 import retrieve from '.';
 
-describe('retrieve user engine functionality', function () {
+describe('retrieve engine functionality', function () {
   let db;
   let promise;
   const req = {
     params: { userId: 's_FhGnAB-xEYn9oELjj_' },
   };
+  const dbQueryParams = {
+    index: process.env.ELASTICSEARCH_INDEX,
+    type: 'user',
+  };
 
+  describe('when invoked', function () {
+    this.beforeEach(function () {
+      db = {
+        get: generateRetrieveClientStubs.success(),
+      };
+      return retrieve(req, db, dbQueryParams);
+    });
+
+    it('should call the client instance method with the correct params', function () {
+      assert.deepEqual(db.get.getCall(0).args[0], {
+        ...dbQueryParams,
+        id: req.params.userId,
+        _source_excludes: 'digest',
+      });
+    });
+  });
   describe('when client.get() is successful', function () {
     this.beforeEach(function () {
       db = {
         get: generateRetrieveClientStubs.success(),
       };
-      promise = retrieve(req, db);
+      promise = retrieve(req, db, dbQueryParams);
     });
     it('should resolve with a user object', function () {
       return promise.then((result) => assert(typeof result === 'object'));
@@ -29,7 +49,7 @@ describe('retrieve user engine functionality', function () {
       db = {
         get: generateRetrieveClientStubs.notFound(),
       };
-      promise = retrieve(req, db);
+      promise = retrieve(req, db, dbQueryParams);
     });
 
     it('should reject with a NotFoundError', function () {
@@ -46,7 +66,7 @@ describe('retrieve user engine functionality', function () {
       db = {
         get: generateRetrieveClientStubs.genericError(),
       };
-      promise = retrieve(req, db);
+      promise = retrieve(req, db, dbQueryParams);
     });
 
     it('should reject with a generic error', function () {

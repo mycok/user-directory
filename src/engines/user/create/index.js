@@ -1,12 +1,13 @@
-function create(req, db, validator, ValidationError) {
+function create(req, db, validator, ...[ValidationError, dbQueryParams]) {
   const { body } = req;
   const validationResults = validator(body);
+
   if (validationResults instanceof ValidationError) {
     return Promise.reject(validationResults);
   }
+
   return db.index({
-    index: process.env.ELASTICSEARCH_INDEX,
-    type: 'user',
+    ...dbQueryParams,
     body,
   })
     .then(((result) => result))
