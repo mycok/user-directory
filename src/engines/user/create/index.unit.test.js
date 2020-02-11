@@ -7,13 +7,36 @@ import generateGetClientStubs,
   from '../../../tests/stubs/elasticsearch/client/index';
 import create from '.';
 
-describe('create user engine functionality', function () {
+
+describe('create engine functionality', function () {
   const req = {
     body: {},
   };
+  const dbQueryParams = {
+    index: process.env.ELASTICSEARCH_INDEX,
+    type: 'user',
+  };
+
   let db;
   let validator;
   let promise;
+
+  describe('when invoked', function () {
+    this.beforeEach(function () {
+      db = {
+        index: generateGetClientStubs.success(),
+      };
+      validator = generateValidatorStubs().valid;
+      return create(req, db, validator, ValidationError, dbQueryParams);
+    });
+
+    it('should call the client instance index method with the correct params', function () {
+      assert.deepEqual(db.index.getCall(0).args[0], {
+        ...dbQueryParams,
+        body: req.body,
+      });
+    });
+  });
 
   describe('when invoked and the validator function returns undefined', function () {
     this.beforeEach(function () {
@@ -21,7 +44,7 @@ describe('create user engine functionality', function () {
         index: generateGetClientStubs.success(),
       };
       validator = generateValidatorStubs().valid;
-      promise = create(req, db, validator, ValidationError);
+      promise = create(req, db, validator, ValidationError, dbQueryParams);
     });
     describe('should call the validator()', function () {
       it('once', function () {
@@ -44,7 +67,7 @@ describe('create user engine functionality', function () {
         index: generateGetClientStubs.success(),
       };
       validator = generateValidatorStubs().invalid;
-      promise = create(req, db, validator, ValidationError);
+      promise = create(req, db, validator, ValidationError, dbQueryParams);
     });
     it('should reject with the ValidationError from the validator function', function () {
       return promise.catch((err) => assert.strictEqual(err, VALIDATION_ERROR));
@@ -57,7 +80,7 @@ describe('create user engine functionality', function () {
         index: generateGetClientStubs.genericError(),
       };
       validator = generateValidatorStubs().valid;
-      promise = create(req, db, validator, ValidationError);
+      promise = create(req, db, validator, ValidationError, dbQueryParams);
     });
     it('should reject with an internal server error', function () {
       return promise.catch((err) => assert.strictEqual(err.message, GENERIC_ERROR.message));

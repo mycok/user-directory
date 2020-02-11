@@ -99,6 +99,11 @@ When(/^it attaches (.+) as payload$/, function (payload) {
     .set('Content-Type', 'application/json');
 });
 
+When(/^sets (?:"|')(.+)(?:"|') as the query parameter$/, function (queryString) {
+  return this.request
+    .query(queryString);
+});
+
 When(/^it sends the request$/, function (callback) {
   this.request
     .then((response) => {

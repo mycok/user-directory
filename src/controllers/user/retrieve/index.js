@@ -1,5 +1,5 @@
-function retrieveUser(req, res, db, ...[engine, errResponse, successResponse]) {
-  return engine(req, db)
+function retrieveUser(req, res, db, ...[engine, errResponse, successResponse, dbQueryParams]) {
+  return engine(req, db, dbQueryParams)
     .then((result) => successResponse(res, 200, result))
     .catch((err) => {
       if (err.message === 'Not Found') {

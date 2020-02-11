@@ -1,8 +1,8 @@
 Feature: Retrieve User
  Feature Description:
-    Clients should be able to send a request to our API to retrieve all users of our application.
-    Our API should be able to respond with an array of user objects for cases where we have registered users.
-    Our API should be able to respond with an empty array for cases where there are no registered users
+    Clients should be able to send a request to our API to retrieve a user that matches a specific id.
+    Our API should be able to respond with a user object for cases where a user is matched.
+    Our API should be able to respond with a Not Found error for cases where no user was matched
 
     Scenario: Retrieve a non existing user
       When a client creates a GET request to /users/s_FhGnAB-xEYn9oELjj_

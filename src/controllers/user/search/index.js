@@ -1,9 +1,9 @@
-function createUser(
+function searchUsers(
   req, res, db,
   ...[engine, validator, ValidationError, errResponse, successResponse, dbQueryParams]
 ) {
   return engine(req, db, validator, ValidationError, dbQueryParams)
-    .then((result) => successResponse(res, 201, result._id, 'text/plain'))
+    .then((users) => successResponse(res, 200, users, 'application/json', false))
     .catch((err) => {
       if (err instanceof ValidationError) {
         return errResponse(res, 400, err.message);
@@ -12,4 +12,4 @@ function createUser(
     });
 }
 
-export default createUser;
+export default searchUsers;

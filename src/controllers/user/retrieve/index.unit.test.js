@@ -12,6 +12,7 @@ import retrieveUser from '.';
 describe('retrieveUser controller functionality', function () {
   const req = {};
   const db = {};
+  const dbQueryParams = {};
 
   let res;
   let engine;
@@ -28,7 +29,7 @@ describe('retrieveUser controller functionality', function () {
       errResponse = stub().returns({});
       successResponse = stub().returns({});
       engine = generateRetrieveEngineStubs().success;
-      return retrieveUser(req, res, db, engine, errResponse, successResponse);
+      return retrieveUser(req, res, db, engine, errResponse, successResponse, dbQueryParams);
     });
 
     describe('should call the retrieve engine function', function () {
@@ -36,8 +37,8 @@ describe('retrieveUser controller functionality', function () {
         assert(engine.calledOnce);
       });
 
-      it('with req, and db as arguments', function () {
-        assert(engine.calledWithExactly(req, db));
+      it('with req, db, and dbQueryParama as arguments', function () {
+        assert(engine.calledWithExactly(req, db, dbQueryParams));
       });
     });
   });
@@ -46,7 +47,7 @@ describe('retrieveUser controller functionality', function () {
       errResponse = stub().returns({});
       successResponse = stub().returns(RESOLVED_USER_OBJ);
       engine = generateRetrieveEngineStubs().success;
-      promise = retrieveUser(req, res, db, engine, errResponse, successResponse);
+      promise = retrieveUser(req, res, db, engine, errResponse, successResponse, dbQueryParams);
     });
 
     describe('should call successResponse()', function () {
@@ -69,7 +70,7 @@ describe('retrieveUser controller functionality', function () {
       errResponse = stub().returns({ message: NOT_FOUND_ERROR.message });
       successResponse = stub().returns({});
       engine = generateRetrieveEngineStubs().notFound;
-      promise = retrieveUser(req, res, db, engine, errResponse, successResponse);
+      promise = retrieveUser(req, res, db, engine, errResponse, successResponse, dbQueryParams);
     });
 
     describe('it should call errResponse()', function () {
@@ -92,7 +93,7 @@ describe('retrieveUser controller functionality', function () {
       errResponse = stub().returns({ message: GENERIC_ERROR_MSG });
       successResponse = stub().returns({});
       engine = generateRetrieveEngineStubs().genericError;
-      promise = retrieveUser(req, res, db, engine, errResponse, successResponse);
+      promise = retrieveUser(req, res, db, engine, errResponse, successResponse, dbQueryParams);
     });
 
     describe('should call errResponse()', function () {

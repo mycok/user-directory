@@ -5,19 +5,40 @@ import generateDeleteClientStubs,
   from '../../../tests/stubs/elasticsearch/client/delete';
 import del from '.';
 
-describe('del user engine functionality', function () {
+describe('del engine functionality', function () {
   let db;
   let promise;
   const req = {
     params: { userId: 's_FhGnAB-xEYn9oELjj_' },
   };
+  const dbQueryParams = {
+    index: process.env.ELASTICSEARCH_INDEX,
+    type: 'user',
+  };
+
+  describe('when invoked', function () {
+    this.beforeAll(function () {
+      db = {
+        delete: generateDeleteClientStubs.success(),
+      };
+      return del(req, db, dbQueryParams);
+    });
+
+    it('should call the client delete method with the correct params', function () {
+      assert.deepEqual(db.delete.getCall(0).args[0], {
+        ...dbQueryParams,
+        id: req.params.userId,
+        refresh: true,
+      });
+    });
+  });
 
   describe('when client.delete() is successful', function () {
     this.beforeEach(function () {
       db = {
         delete: generateDeleteClientStubs.success(),
       };
-      promise = del(req, db);
+      promise = del(req, db, dbQueryParams);
     });
     it('should resolve with a deleted text', async function () {
       const result = await promise;
@@ -30,7 +51,7 @@ describe('del user engine functionality', function () {
       db = {
         delete: generateDeleteClientStubs.notFound(),
       };
-      promise = del(req, db);
+      promise = del(req, db, dbQueryParams);
     });
 
     it('should return a promise that rejects with a NotFoundError', function () {
@@ -47,7 +68,7 @@ describe('del user engine functionality', function () {
       db = {
         delete: generateDeleteClientStubs.genericError(),
       };
-      promise = del(req, db);
+      promise = del(req, db, dbQueryParams);
     });
 
     it('should return a promise that rejects with a generic error', function () {

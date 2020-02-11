@@ -27,9 +27,9 @@ Then(/^our API should respond with a ([1-5]\d{2}) HTTP status code$/, function (
   assert.equal(this.response.statusCode, statusCode);
 });
 
-Then(/^the payload of the response should be a? ([a-zzA-Z0-9, ]+)$/, function (payloadType) {
+Then(/^the payload of the response should be an? ([a-zzA-Z0-9, ]+)$/, function (payloadType) {
   const contentType = this.response.headers['Content-Type'] || this.response.headers['content-type'];
-  if (payloadType === 'JSON object') {
+  if (payloadType === 'JSON object' || payloadType === 'array') {
     if (!contentType || !contentType.includes('application/json')) {
       throw new Error('Response not of content-type application/json');
     }
@@ -56,4 +56,12 @@ Then(/^should contain a message property stating that (?:"|')(.*)(?:"|')$/, func
 
 Then(/^the ([\w.]+) property of the response should be the same as context\.([\w.]+)$/, function (responseProperty, contextProperty) {
   assert.deepEqual(objectPath.get(this.response, (responseProperty === 'root' ? '' : responseProperty)), objectPath.get(this, contextProperty));
+});
+
+Then(/^should contain ([\d]+) items$/, function (count) {
+  assert.equal(this.response.length, count);
+});
+
+Then(/^the first item of the response should contain a property ([\w.]+) set to (.+)$/, function (propertyPath, value) {
+  assert.equal(objectPath.get(this.response[0], propertyPath), value);
 });

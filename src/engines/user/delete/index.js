@@ -1,9 +1,10 @@
-function del(req, db) {
+function del(req, db, dbQueryParams) {
   const { params: { userId } } = req;
+
   return db.delete({
-    index: process.env.ELASTICSEARCH_INDEX,
-    type: 'user',
+    ...dbQueryParams,
     id: userId,
+    refresh: true,
   })
     .then((resp) => resp)
     .catch((err) => {

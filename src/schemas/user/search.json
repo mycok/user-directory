@@ -1,0 +1,11 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "$id": "http://api.user-directory/schemas/user/search.json",
+    "title": "Search user schema",
+    "description": "For validating client-provided search query",
+    "type": "object",
+    "properties": {
+        "query": { "type": "string" }
+    },
+    "additionalProperties": false
+}
