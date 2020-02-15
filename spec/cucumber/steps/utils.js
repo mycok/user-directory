@@ -8,6 +8,16 @@ function getValidPayload(type, context = {}) {
         email: context.email || 'test@email.com',
         password: context.password || 'pasSword#67',
       };
+    case 'update user profile':
+      return {
+        name: {
+          first: 'Michael',
+          middle: 'Myckie',
+          last: 'Myco',
+        },
+        bio: 'bio',
+        summary: 'summary',
+      };
 
     default:
       return undefined;

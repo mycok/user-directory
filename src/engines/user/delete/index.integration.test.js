@@ -12,22 +12,9 @@ const RESOLVED_RESPONSE_OBJECT = { result: 'deleted' };
 
 describe('del engine integration', function () {
   const req = {
-    params: { userId: USER_ID },
+    user: { _id: USER_ID },
   };
   let promise;
-  describe('when the user to be deleted does not exist', function () {
-    this.beforeEach(function () {
-      promise = del(req, db, dbQueryParams);
-    });
-
-    it('should return a promise that rejects with a not-found error', function () {
-      return promise.catch((err) => assert(err instanceof Error));
-    });
-
-    it('should contain a not-found error message', function () {
-      return promise.catch((err) => assert(err.message === 'Not Found'));
-    });
-  });
 
   describe('when the user to be deleted exists', function () {
     this.beforeEach(function () {
@@ -50,7 +37,7 @@ describe('del engine integration', function () {
 
       it('to an object with a result property', function () {
         return promise.then(
-          (result) => assert.equal(result.result, RESOLVED_RESPONSE_OBJECT.result),
+          (result) => assert.equal(result, RESOLVED_RESPONSE_OBJECT.result),
         );
       });
     });

@@ -52,11 +52,11 @@ describe('search engine functionality', function () {
         return search(req, db, validator, ValidationError, dbQueryParams);
       });
 
-      it('should call the client instance search method with the correct params', function () {
+      it('should call db.search() with the correct params', function () {
         assert.deepEqual(db.search.getCall(0).args[0], {
           index: process.env.ELASTICSEARCH_INDEX,
           type: 'user',
-          _source_excludes: 'digest',
+          _source_excludes: ['digest', 'password'],
         });
       });
     });
@@ -67,12 +67,12 @@ describe('search engine functionality', function () {
         return search(req, db, validator, ValidationError, dbQueryParams);
       });
 
-      it('should caall the client instance search method with correct params', function () {
+      it('should call db.search() with correct params', function () {
         assert.deepEqual(db.search.getCall(0).args[0], {
           index: process.env.ELASTICSEARCH_INDEX,
           type: 'user',
           q: SEARCH_TERM,
-          _source_excludes: 'digest',
+          _source_excludes: ['digest', 'password'],
         });
       });
     });
@@ -103,7 +103,7 @@ describe('search engine functionality', function () {
         return promise.catch((err) => assert(err instanceof Error));
       });
 
-      it('with an internal server error messaage', function () {
+      it('containing an internal server error messaage', function () {
         return promise.catch((err) => assert(err.message, GENERIC_ERROR.message));
       });
     });
@@ -115,7 +115,7 @@ describe('search engine functionality', function () {
         promise = search(req, db, validator, ValidationError, dbQueryParams);
       });
 
-      it('calls validator function once', function () {
+      it('should call the validator function once', function () {
         return promise.catch(() => assert(validator.calledOnce));
       });
 
@@ -123,11 +123,11 @@ describe('search engine functionality', function () {
         return promise.catch(() => assert(validator.calledWithExactly(req.query)));
       });
 
-      it('should reject with a validation error', function () {
+      it('and reject with a validation error', function () {
         return promise.catch((err) => assert.strictEqual(err, VALIDATION_ERROR));
       });
 
-      it('should not call db.search()', function () {
+      it('and should not call db.search()', function () {
         return promise.catch(() => assert(db.search.notCalled));
       });
     });

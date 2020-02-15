@@ -8,7 +8,7 @@ function search(req, db, validator, ...[ValidationError, dbQueryParams]) {
 
   const dbQuery = {
     ...dbQueryParams,
-    _source_excludes: 'digest',
+    _source_excludes: ['digest', 'password'],
   };
 
   if (query.query !== '') {
@@ -16,7 +16,7 @@ function search(req, db, validator, ...[ValidationError, dbQueryParams]) {
   }
 
   return db.search(dbQuery)
-    .then((res) => res.hits.hits.map((hit) => hit._source))
+    .then(({ hits: { hits } }) => hits.map((hit) => hit._source))
     .catch(() => Promise.reject(new Error('Internal server error')));
 }
 

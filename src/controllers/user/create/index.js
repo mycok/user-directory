@@ -1,15 +1,13 @@
 function createUser(
   req, res, db,
-  ...[engine, validator, ValidationError, errResponse, successResponse, dbQueryParams]
+  ...[
+    engine, validator, ValidationError, errResponse,
+    successResponse, dbQueryParams, generateErrResponses,
+  ]
 ) {
   return engine(req, db, validator, ValidationError, dbQueryParams)
-    .then((result) => successResponse(res, 201, result._id, 'text/plain'))
-    .catch((err) => {
-      if (err instanceof ValidationError) {
-        return errResponse(res, 400, err.message);
-      }
-      return errResponse(res, 500, err.message);
-    });
+    .then((result) => successResponse(res, 201, result))
+    .catch((err) => generateErrResponses(res, err, errResponse, ValidationError));
 }
 
 export default createUser;

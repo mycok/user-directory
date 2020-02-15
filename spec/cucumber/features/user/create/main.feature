@@ -88,7 +88,7 @@ Feature: Create User
    And it sends the request
    And it saves the response text in the context under userId
    Then our API should respond with a 201 HTTP status code
-   And the payload of the response should be a string
+   And the payload of the response should be a an object
    And the payload object should be added to the database, grouped under the "user" type
    And the entity of type user, with ID stored under userId, should be deleted
 
@@ -115,7 +115,7 @@ Feature: Create User
    And it sends the request
    And it saves the response text in the context under userId
    Then our API should respond with a 201 HTTP status code
-   And the payload of the response should be a string
+   And the payload of the response should be an object
    And the payload object should be added to the database, grouped under the "user" type
    And the entity of type user, with ID stored under userId, should be deleted
 

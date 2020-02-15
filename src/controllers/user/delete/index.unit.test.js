@@ -4,7 +4,7 @@ import { stub } from 'sinon';
 import generateResSpy from '../../../tests/spies/res';
 import generateDeleteEngineStubs,
 {
-  RESOLVED_RESPONSE, NOT_FOUND_ERROR, GENERIC_ERROR_MSG,
+  RESOLVED_RESPONSE, GENERIC_ERROR_MSG,
 }
   from '../../../tests/stubs/engines/user/delete';
 import deleteUser from '.';
@@ -18,6 +18,7 @@ describe('DeleteUser controller functionality', function () {
   let engine;
   let successResponse;
   let errResponse;
+  let generateErrResponses;
   let promise;
 
   beforeEach(function () {
@@ -28,8 +29,13 @@ describe('DeleteUser controller functionality', function () {
     beforeEach(function () {
       errResponse = stub().returns({});
       successResponse = stub().returns({});
+      generateErrResponses = stub().returns(errResponse());
       engine = generateDeleteEngineStubs().success;
-      return deleteUser(req, res, db, engine, errResponse, successResponse, dbQueryParams);
+
+      return deleteUser(
+        req, res, db, engine, errResponse,
+        successResponse, dbQueryParams, generateErrResponses,
+      );
     });
 
     describe('should call the del engine function', function () {
@@ -46,8 +52,13 @@ describe('DeleteUser controller functionality', function () {
     beforeEach(function () {
       errResponse = stub().returns({});
       successResponse = stub().returns(RESOLVED_RESPONSE);
+      generateErrResponses = stub().returns(errResponse());
       engine = generateDeleteEngineStubs().success;
-      promise = deleteUser(req, res, db, engine, errResponse, successResponse, dbQueryParams);
+
+      promise = deleteUser(
+        req, res, db, engine,
+        errResponse, successResponse, dbQueryParams, generateErrResponses,
+      );
     });
 
     describe('should call successResponse()', function () {
@@ -55,34 +66,11 @@ describe('DeleteUser controller functionality', function () {
         assert(successResponse.calledOnce);
       });
       it('with res, 200, result and content-type arguments', function () {
-        assert(successResponse.calledWithExactly(res, 200, RESOLVED_RESPONSE.result, 'text/plain'));
+        assert(successResponse.calledWithExactly(res, 200, RESOLVED_RESPONSE, 'text/plain', false));
       });
       it('should return deleted as the response', async function () {
         const result = await promise;
         assert.strictEqual(result, RESOLVED_RESPONSE);
-      });
-    });
-  });
-
-  describe('when invoked with a non existing userId', function () {
-    beforeEach(function () {
-      errResponse = stub().returns({ message: NOT_FOUND_ERROR.message });
-      successResponse = stub().returns({});
-      engine = generateDeleteEngineStubs().notFound;
-      promise = deleteUser(req, res, db, engine, errResponse, successResponse, dbQueryParams);
-    });
-
-    describe('it should call errResponse()', function () {
-      it('once', function () {
-        assert(errResponse.calledOnce);
-      });
-      it('with res, 404 and message', function () {
-        assert(errResponse.calledWithExactly(res, 404, NOT_FOUND_ERROR.message));
-      });
-
-      it('should return a not-found error message as the response', async function () {
-        const result = await promise;
-        assert.strictEqual(result.message, NOT_FOUND_ERROR.message);
       });
     });
   });
@@ -92,21 +80,24 @@ describe('DeleteUser controller functionality', function () {
       errResponse = stub().returns({ message: GENERIC_ERROR_MSG });
       successResponse = stub().returns({});
       engine = generateDeleteEngineStubs().genericError;
-      promise = deleteUser(req, res, db, engine, errResponse, successResponse, dbQueryParams);
+      generateErrResponses = stub().returns(errResponse());
+
+      promise = deleteUser(
+        req, res, db, engine, errResponse,
+        successResponse, dbQueryParams, generateErrResponses,
+      );
     });
 
-    describe('should call errResponse()', function () {
-      it('once', function () {
-        assert(errResponse.calledOnce);
-      });
-      it('with res, 500 and message arguments', function () {
-        assert(errResponse.calledWithExactly(res, 500, GENERIC_ERROR_MSG));
-      });
+    it('should call errResponse() once', function () {
+      return promise.catch(() => assert(generateErrResponses.calledOnce));
+    });
+    it('with res, err and errResponse as arguments', function () {
+      return promise.catch((err) => assert(errResponse.calledWithExactly(res, err, errResponse)));
+    });
 
-      it('should return a generic error message as the response', async function () {
-        const result = await promise;
-        assert.strictEqual(result.message, GENERIC_ERROR_MSG);
-      });
+    it('should return a generic error message as the response', async function () {
+      const err = await promise;
+      assert.strictEqual(err.message, GENERIC_ERROR_MSG);
     });
   });
 });

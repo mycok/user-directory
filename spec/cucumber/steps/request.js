@@ -1,5 +1,6 @@
 import superagent from 'superagent';
 import { When } from 'cucumber';
+import objectPath from 'object-path';
 
 import { getValidPayload, convertStringToArray, processPath } from './utils';
 
@@ -48,30 +49,6 @@ When(/^it attaches a? (.+) payload which is missing the ([a-zA-Z0-9, ]+) field$/
     .set('Content-Type', 'application/json');
 });
 
-When(/^it attaches a? (.+) payload where the ([a-zA-Z0-9, ]+) field? (?:is|are)(\s+not)? a ([a-zA-Z]+)$/, function (payloadType, field, invert, fieldType) {
-  this.requestPayload = getValidPayload(payloadType, this);
-
-  const typeKey = fieldType.toLowerCase();
-  const invertKey = invert ? 'not' : 'is';
-
-  const sampleValues = {
-    string: {
-      is: 'string',
-      not: 10,
-    },
-  };
-
-  const fieldsToModify = convertStringToArray(field);
-
-  fieldsToModify.forEach((fieldName) => {
-    this.requestPayload[fieldName] = sampleValues[typeKey][invertKey];
-  });
-
-  this.request
-    .send(JSON.stringify(this.requestPayload))
-    .set('Content-Type', 'application/json');
-});
-
 When(/^it attaches a? (.+) payload where the ([a-zA-Z0-9,]+) field? (?:is|are) exactly (.+)$/, function (payloadType, field, value) {
   this.requestPayload = getValidPayload(payloadType, this);
   const fieldsToModify = convertStringToArray(field);
@@ -95,7 +72,43 @@ When(/^it attaches a valid (.+) payload$/, function (payloadType) {
 When(/^it attaches (.+) as payload$/, function (payload) {
   this.requestPayload = JSON.parse(payload);
   this.request
-    .send(payload)
+    .send(JSON.stringify(this.requestPayload))
+    .set('Content-Type', 'application/json');
+});
+
+When(/^it attaches an? (.+) payload with additional ([a-zA-Z0-9, ]+) fields?$/, function (payloadType, additionalField) {
+  this.requestPayload = getValidPayload(payloadType, this);
+  const fieldsToAdd = convertStringToArray(additionalField);
+
+  fieldsToAdd.forEach((field) => objectPath.set(this.requestPayload, field, 'foo'));
+
+  this.request
+    .send(JSON.stringify(this.requestPayload))
+    .set('Content-Type', 'application/json');
+});
+
+When(/^it attaches an? (.+) payload where the ([a-zA-Z0-9., ]+) field? (?:is|are)(\s+not)? a ([a-zA-Z]+)$/, function (payloadType, fields, invert, type) {
+  this.requestPayload = getValidPayload(payloadType, this);
+  const typeKey = type.toLowerCase();
+  const invertKey = invert ? 'not' : 'is';
+  const sampleObjects = {
+    object: {
+      is: {},
+      not: 'string',
+    },
+    string: {
+      is: 'string',
+      not: {},
+    },
+  };
+  const fieldsToAdd = convertStringToArray(fields);
+
+  fieldsToAdd.forEach((field) => objectPath.set(
+    this.requestPayload, field, sampleObjects[typeKey][invertKey],
+  ));
+
+  this.request
+    .send(JSON.stringify(this.requestPayload))
     .set('Content-Type', 'application/json');
 });
 
