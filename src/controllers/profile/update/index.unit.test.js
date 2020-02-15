@@ -2,11 +2,11 @@ import assert from 'assert';
 import { stub } from 'sinon';
 
 import ValidationError from '../../../errors/validation-error';
-import generateSearchEngineStubs, { RESOLVED_USERS, GENERIC_ERROR, VALIDATION_ERROR_MSG } from '../../../tests/stubs/engines/user/search';
+import generateUpdateEngineStubs, { RESOLVED_RESULT, GENERIC_ERROR, VALIDATION_ERROR_MSG } from '../../../tests/stubs/engines/user/update';
 import generateResSpy from '../../../tests/spies/res';
-import searchUser from '.';
+import updateUser from '.';
 
-describe('searchUser controller functionality', function () {
+describe('updateUser controller functionality', function () {
   const req = {};
   const db = {};
   const dbQueryParams = {};
@@ -28,15 +28,15 @@ describe('searchUser controller functionality', function () {
       errResponse = stub().returns({});
       successResponse = stub().returns({});
       generateErrResponses = stub().returns(errResponse());
-      engine = generateSearchEngineStubs().success;
+      engine = generateUpdateEngineStubs().success;
 
-      return searchUser(
+      promise = updateUser(
         req, res, db, engine, validator,
         ValidationError, errResponse, successResponse, dbQueryParams, generateErrResponses,
       );
     });
 
-    describe('should call the search engine function', function () {
+    describe('should call the update engine function', function () {
       it('once', function () {
         assert(engine.calledOnce);
       });
@@ -46,14 +46,15 @@ describe('searchUser controller functionality', function () {
       });
     });
   });
+
   describe('when invoked with a valid request object', function () {
     beforeEach(function () {
       errResponse = stub().returns({});
-      successResponse = stub().returns(RESOLVED_USERS);
+      successResponse = stub().returns(RESOLVED_RESULT);
       generateErrResponses = stub().returns(errResponse());
-      engine = generateSearchEngineStubs().success;
+      engine = generateUpdateEngineStubs().success;
 
-      promise = searchUser(
+      promise = updateUser(
         req, res, db, engine, validator,
         ValidationError, errResponse, successResponse, dbQueryParams, generateErrResponses,
       );
@@ -64,24 +65,24 @@ describe('searchUser controller functionality', function () {
         assert(successResponse.calledOnce);
       });
       it('with all the required arguments', function () {
-        assert(successResponse.calledWithExactly(res, 200, RESOLVED_USERS));
+        assert(successResponse.calledWithExactly(res, 200, RESOLVED_RESULT));
       });
 
-      it('should return an array of user objects as the response', async function () {
+      it('should return an updated text as the response', async function () {
         const result = await promise;
-        assert.strictEqual(result, RESOLVED_USERS);
+        assert.strictEqual(result, RESOLVED_RESULT);
       });
     });
   });
 
-  describe('when invoked with an invalid search query and it rejects', function () {
+  describe('when invoked with an invalid update fields and it rejects', function () {
     beforeEach(function () {
       errResponse = stub().returns({ message: VALIDATION_ERROR_MSG });
       successResponse = stub().returns({});
       generateErrResponses = stub().returns(errResponse());
-      engine = generateSearchEngineStubs().validationError;
+      engine = generateUpdateEngineStubs().genericError;
 
-      promise = searchUser(
+      promise = updateUser(
         req, res, db, engine, validator,
         ValidationError, errResponse, successResponse, dbQueryParams, generateErrResponses,
       );
@@ -89,19 +90,17 @@ describe('searchUser controller functionality', function () {
 
     describe('it should call generateErrResponses()', function () {
       it('once', function () {
-        return promise.catch((err) => {
-          console.log('searchhhhhhhhh', err);
-          assert(generateErrResponses.calledOnce);
-        });
+        assert(generateErrResponses.calledOnce);
       });
       it('with res, err, errResponse and ValidationError', function () {
         return promise.catch((err) => assert(
-          generateErrResponses.calledWithExactly(err),
+          generateErrResponses.calledWithExactly(res, err, errResponse, ValidationError),
         ));
       });
 
-      it('should return a validation error message as the response', function () {
-        return promise.catch((err) => assert.strictEqual(err.message, VALIDATION_ERROR_MSG));
+      it('should return a validation error message as the response', async function () {
+        const err = await promise;
+        assert.strictEqual(err.message, VALIDATION_ERROR_MSG);
       });
     });
   });
@@ -111,9 +110,9 @@ describe('searchUser controller functionality', function () {
       errResponse = stub().returns({ message: GENERIC_ERROR.message });
       successResponse = stub().returns({});
       generateErrResponses = stub().returns(errResponse());
-      engine = generateSearchEngineStubs().genericError;
+      engine = generateUpdateEngineStubs().genericError;
 
-      promise = searchUser(
+      promise = updateUser(
         req, res, db, engine, validator,
         ValidationError, errResponse, successResponse, dbQueryParams, generateErrResponses,
       );

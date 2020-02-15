@@ -17,6 +17,7 @@ describe('createUser controller functionality', function () {
   let engine;
   let successResponse;
   let errResponse;
+  let generateErrResponses;
   let promise;
 
   beforeEach(function () {
@@ -28,9 +29,10 @@ describe('createUser controller functionality', function () {
       engine = generateCreateEngineStubs().success;
       errResponse = stub().returns({});
       successResponse = stub().returns({});
+      generateErrResponses = stub().returns({});
       return createUser(
-        req, res, db, engine, validator,
-        ValidationError, errResponse, successResponse, dbQueryParams,
+        req, res, db, engine, validator, ValidationError,
+        errResponse, successResponse, dbQueryParams, generateErrResponses,
       );
     });
 
@@ -47,11 +49,13 @@ describe('createUser controller functionality', function () {
   describe('when invoked with a valid request object', function () {
     beforeEach(function () {
       errResponse = stub().returns({});
-      successResponse = stub().returns(CREATE_USER_RESPONSE._id);
+      successResponse = stub().returns(CREATE_USER_RESPONSE);
+      generateErrResponses = stub().returns(errResponse());
       engine = generateCreateEngineStubs().success;
+
       promise = createUser(
-        req, res, db, engine, validator,
-        ValidationError, errResponse, successResponse, dbQueryParams,
+        req, res, db, engine, validator, ValidationError,
+        errResponse, successResponse, dbQueryParams, generateErrResponses,
       );
     });
 
@@ -59,12 +63,12 @@ describe('createUser controller functionality', function () {
       it('once', function () {
         assert(successResponse.calledOnce);
       });
-      it('with res, 201, result and content-type as arguments', function () {
-        assert(successResponse.calledWithExactly(res, 201, CREATE_USER_RESPONSE._id, 'text/plain'));
+      it('with res, 201, and result as arguments', function () {
+        assert(successResponse.calledWithExactly(res, 201, CREATE_USER_RESPONSE));
       });
       it('should return a userId as the response', async function () {
         const result = await promise;
-        assert.strictEqual(result, CREATE_USER_RESPONSE._id);
+        assert.strictEqual(result, CREATE_USER_RESPONSE);
       });
     });
   });
@@ -73,26 +77,28 @@ describe('createUser controller functionality', function () {
     beforeEach(function () {
       errResponse = stub().returns({ message: VALIDATION_ERROR_MSG });
       successResponse = stub().returns({});
+      generateErrResponses = stub().returns(errResponse());
       engine = generateCreateEngineStubs().validationError;
+
       promise = createUser(
-        req, res, db, engine, validator,
-        ValidationError, errResponse, successResponse, dbQueryParams,
+        req, res, db, engine, validator, ValidationError,
+        errResponse, successResponse, dbQueryParams, generateErrResponses,
       );
     });
 
-    describe('should call errResponse()', function () {
-      it('once', function () {
-        assert(errResponse.calledOnce);
-      });
+    it('should call generateErrResponses() once', function () {
+      return promise.catch(() => assert(generateErrResponses.calledOnce));
+    });
 
-      it('with res, 400 and message arguments', function () {
-        assert(errResponse.calledWithExactly(res, 400, VALIDATION_ERROR_MSG));
-      });
+    it('with res, err, errResponse and ValidationError arguments', function () {
+      return promise.catch((err) => assert(
+        generateErrResponses.calledWithExactly(res, err, errResponse, ValidationError),
+      ));
+    });
 
-      it('should return a validtion error message as the response', async function () {
-        const result = await promise;
-        assert.strictEqual(result.message, VALIDATION_ERROR_MSG);
-      });
+    it('should return a validtion error message as the response', async function () {
+      const err = await promise;
+      assert.strictEqual(err.message, VALIDATION_ERROR_MSG);
     });
   });
 
@@ -100,26 +106,28 @@ describe('createUser controller functionality', function () {
     beforeEach(function () {
       errResponse = stub().returns({ message: GENERIC_ERROR_MSG });
       successResponse = stub().returns({});
+      generateErrResponses = stub().returns(errResponse());
       engine = generateCreateEngineStubs().genericError;
+
       promise = createUser(
-        req, res, db, engine, validator,
-        ValidationError, errResponse, successResponse, dbQueryParams,
+        req, res, db, engine, validator, ValidationError,
+        errResponse, successResponse, dbQueryParams, generateErrResponses,
       );
     });
 
-    describe('should call errResponse()', function () {
-      it('once', function () {
-        assert(errResponse.calledOnce);
-      });
+    it('should call generateErrResponses() once', function () {
+      return promise.catch(() => assert(generateErrResponses.calledOnce));
+    });
 
-      it('with res, 500, and message arguments', function () {
-        assert(errResponse.calledWithExactly(res, 500, GENERIC_ERROR_MSG));
-      });
+    it('with res, err, errResponse and ValidationError arguments', function () {
+      return promise.catch((err) => assert(
+        generateErrResponses.calledWithExactly(res, err, errResponse, ValidationError),
+      ));
+    });
 
-      it('should return a generic error message as the response', async function () {
-        const result = await promise;
-        assert.strictEqual(result.message, GENERIC_ERROR_MSG);
-      });
+    it('should return a generic error message as the response', async function () {
+      const err = await promise;
+      assert.strictEqual(err.message, GENERIC_ERROR_MSG);
     });
   });
 });

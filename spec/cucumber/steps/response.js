@@ -3,11 +3,12 @@ import { Then, When } from 'cucumber';
 import objectPath from 'object-path';
 
 import db from '../../../src/database/elasticsearch-setup';
+import { convertStringToArray } from './utils';
 
 const client = db;
 
 When(/^it saves the response text in the context under ([\w.]+)$/, function (contextPath) {
-  objectPath.set(this, contextPath, this.response.text);
+  objectPath.set(this, contextPath, JSON.parse(this.response.text)._id);
 });
 
 Then(/^the payload object should be added to the database, grouped under the "([a-zA-Z]+)" type$/, function (type, callback) {
@@ -16,7 +17,7 @@ Then(/^the payload object should be added to the database, grouped under the "([
   client.get({
     index: process.env.ELASTICSEARCH_INDEX,
     type,
-    id: this.response,
+    id: this.userId,
   }).then((result) => {
     assert.deepEqual(result._source, this.requestPayload);
     callback();
@@ -58,10 +59,33 @@ Then(/^the ([\w.]+) property of the response should be the same as context\.([\w
   assert.deepEqual(objectPath.get(this.response, (responseProperty === 'root' ? '' : responseProperty)), objectPath.get(this, contextProperty));
 });
 
+Then(/^the ([\w.]+) property of the response should be the same as context\.([\w.]+) but without the ([\w.]+) fields?$/, function (responseProperty, contextProperty, missingFields) {
+  const responseContextObject = objectPath.get(this, contextProperty);
+  const fieldsToDelete = convertStringToArray(missingFields);
+  fieldsToDelete.forEach((field) => delete responseContextObject[field]);
+
+  assert.deepEqual(objectPath.get(this.response, (responseProperty === 'root' ? '' : responseProperty)), responseContextObject);
+});
+
 Then(/^should contain ([\d]+) items$/, function (count) {
   assert.equal(this.response.length, count);
 });
 
 Then(/^the first item of the response should contain a property ([\w.]+) set to (.+)$/, function (propertyPath, value) {
   assert.equal(objectPath.get(this.response[0], propertyPath), value);
+});
+
+Then(/^the ([\w.]+) property of the response should be an? ([\w.]+) with the value (.+)$/, function (responseProperty, expectedResponseType, expectedResponseValue) {
+  const parseExpectedResponseValue = (function () {
+    switch (expectedResponseType) {
+      case 'object':
+        return JSON.parse(expectedResponseValue);
+      case 'string':
+        return expectedResponseValue.replace(/^(?:["'])(.*)(?:["'])$/);
+      default:
+        return expectedResponseValue;
+    }
+  }());
+
+  assert.deepEqual(objectPath.get(this.response, (responseProperty === 'root' ? '' : responseProperty)), parseExpectedResponseValue);
 });

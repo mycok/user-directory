@@ -1,12 +1,10 @@
-function retrieveUser(req, res, db, ...[engine, errResponse, successResponse, dbQueryParams]) {
+function retrieveUser(
+  req, res, db,
+  ...[engine, errResponse, successResponse, dbQueryParams, generateErrResponses]
+) {
   return engine(req, db, dbQueryParams)
     .then((result) => successResponse(res, 200, result))
-    .catch((err) => {
-      if (err.message === 'Not Found') {
-        return errResponse(res, 404, err.message);
-      }
-      return errResponse(res, 500, err.message);
-    });
+    .catch((err) => generateErrResponses(res, err, errResponse));
 }
 
 export default retrieveUser;

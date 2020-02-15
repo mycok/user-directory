@@ -1,12 +1,13 @@
-function searchUsers(
+function updateUser(
   req, res, db,
   ...[
     engine, validator, ValidationError, errResponse,
-    successResponse, dbQueryParams, generateErrResponses]
+    successResponse, dbQueryParams, generateErrResponses,
+  ]
 ) {
   return engine(req, db, validator, ValidationError, dbQueryParams)
-    .then((users) => successResponse(res, 200, users))
+    .then((result) => successResponse(res, 200, result))
     .catch((err) => generateErrResponses(res, err, errResponse, ValidationError));
 }
 
-export default searchUsers;
+export default updateUser;

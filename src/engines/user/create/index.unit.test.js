@@ -30,7 +30,7 @@ describe('create engine functionality', function () {
       return create(req, db, validator, ValidationError, dbQueryParams);
     });
 
-    it('should call the client instance index method with the correct params', function () {
+    it('should call the client.index() with the correct params', function () {
       assert.deepEqual(db.index.getCall(0).args[0], {
         ...dbQueryParams,
         body: req.body,
@@ -55,8 +55,8 @@ describe('create engine functionality', function () {
         assert(validator.calledWithExactly(req.body));
       });
 
-      it('should relay the promise returned by calling db.index()', function () {
-        return promise.then((result) => assert.strictEqual(result, INDEX_RESOLVED_OBJ));
+      it('and resolve with a userId', function () {
+        return promise.then((result) => assert.deepEqual(result, INDEX_RESOLVED_OBJ));
       });
     });
   });
@@ -69,7 +69,7 @@ describe('create engine functionality', function () {
       validator = generateValidatorStubs().invalid;
       promise = create(req, db, validator, ValidationError, dbQueryParams);
     });
-    it('should reject with the ValidationError from the validator function', function () {
+    it('should reject with a ValidationError', function () {
       return promise.catch((err) => assert.strictEqual(err, VALIDATION_ERROR));
     });
   });

@@ -11,22 +11,9 @@ const RESOLVED_USER_OBJ = {
 
 describe('retrieve engine integration', function () {
   const req = {
-    params: { userId: USER_ID },
+    user: { _id: USER_ID },
   };
   let promise;
-  describe('when the requested user does not exist', function () {
-    this.beforeEach(function () {
-      promise = retrieve(req, db, dbQueryParams);
-    });
-
-    it('should return a promise that rejects with a not-found error', function () {
-      return promise.catch((err) => assert(err instanceof Error));
-    });
-
-    it('should contain a not-found error message', function () {
-      return promise.catch((err) => assert(err.message === 'Not Found'));
-    });
-  });
 
   describe('when the requested user exists', function () {
     this.beforeEach(function () {

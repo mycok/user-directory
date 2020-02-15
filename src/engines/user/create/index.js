@@ -10,8 +10,8 @@ function create(req, db, validator, ...[ValidationError, dbQueryParams]) {
     ...dbQueryParams,
     body,
   })
-    .then(((result) => result))
-    .catch(((err) => Promise.reject(new Error('Internal server error'))));
+    .then((({ _id, result }) => ({ _id, result })))
+    .catch((() => Promise.reject(new Error('Internal server error'))));
 }
 
 export default create;
