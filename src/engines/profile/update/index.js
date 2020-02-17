@@ -1,4 +1,4 @@
-function update(req, db, validator, ValidationError, dbQueryParams) {
+function update(req, db, validator, ...[ValidationError, dbQueryParams]) {
   const { user: { _id }, body } = req;
 
   const validationResults = validator(body);
