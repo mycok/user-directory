@@ -16,20 +16,17 @@ describe('retrieve engine integration', function () {
   let promise;
 
   describe('when the requested user exists', function () {
-    this.beforeEach(function () {
-      promise = db.index({
+    this.beforeEach(async function () {
+      await db.index({
         index: process.env.ELASTICSEARCH_INDEX,
         type: 'user',
         id: USER_ID,
         body: RESOLVED_USER_OBJ,
-      })
-        .then(() => retrieve(req, db, dbQueryParams));
-
-      return promise;
+      });
     });
 
-    this.afterEach(() => {
-      db.delete({
+    this.afterEach(async function () {
+      await db.delete({
         index: process.env.ELASTICSEARCH_INDEX,
         type: 'user',
         id: USER_ID,
@@ -38,6 +35,9 @@ describe('retrieve engine integration', function () {
     });
 
     describe('and the elasticsearch operation is successful', function () {
+      this.beforeEach(function () {
+        promise = retrieve(req, db, dbQueryParams);
+      });
       it('should return a promise that resolves', function () {
         return promise.then(() => assert(true));
       });
