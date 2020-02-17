@@ -75,8 +75,8 @@ describe('search engine integration', function () {
     });
 
     describe('and the search is successful', function () {
-      this.beforeEach(function () {
-        return db.index({
+      this.beforeEach(async function () {
+        await db.index({
           index: process.env.ELASTICSEARCH_INDEX,
           type: 'user',
           id: USER_ID,
@@ -85,8 +85,8 @@ describe('search engine integration', function () {
         });
       });
 
-      this.afterEach(function () {
-        db.delete({
+      this.afterEach(async function () {
+        await db.delete({
           index: process.env.ELASTICSEARCH_INDEX,
           type: 'user',
           id: USER_ID,
