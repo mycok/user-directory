@@ -1,4 +1,4 @@
-function updateUser(
+function updateProfile(
   req, res, db,
   ...[
     engine, validator, ValidationError, errResponse,
@@ -10,4 +10,4 @@ function updateUser(
     .catch((err) => generateErrResponses(res, err, errResponse, ValidationError));
 }
 
-export default updateUser;
+export default updateProfile;

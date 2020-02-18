@@ -16,7 +16,8 @@ function injectControllerDependencies(
   const requireValidators = [
     'createUser',
     'searchUsers',
-    'updateUser',
+    'updateProfile',
+    'replaceProfile',
   ];
 
   return (req, res) => {

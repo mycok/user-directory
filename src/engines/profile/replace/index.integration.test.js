@@ -4,9 +4,9 @@ import ValidationError from '../../../errors/validation-error';
 import db from '../../../database/elasticsearch-setup';
 import validator from '../../../validators/profile/validate';
 import dbQueryParams from '../../../database/dbQueryParams';
-import update from '.';
+import replace from '.';
 
-describe('update engine integration', function () {
+describe('replace engine integration', function () {
   let req;
   let promise;
 
@@ -22,7 +22,6 @@ describe('update engine integration', function () {
     email: 'e@ma.il',
     profile: {
       summary: 'test-update-integration',
-      bio: 'test',
     },
   };
 
@@ -37,7 +36,7 @@ describe('update engine integration', function () {
         },
       };
 
-      promise = update(req, db, validator, ValidationError, dbQueryParams);
+      promise = replace(req, db, validator, ValidationError, dbQueryParams);
     });
 
     it('should return a promise that rejects with a Validation error', function () {
@@ -66,7 +65,7 @@ describe('update engine integration', function () {
         body: ORIGINAL_USER_OBJ,
         refresh: true,
       })
-        .then(() => update(req, db, validator, ValidationError, dbQueryParams));
+        .then(() => replace(req, db, validator, ValidationError, dbQueryParams));
       return promise;
     });
 
@@ -81,7 +80,7 @@ describe('update engine integration', function () {
       return promise.then((result) => assert.deepEqual(result, 'updated'));
     });
 
-    it('should have updated the users summary field', function () {
+    it('should have replaced the entire user profile with the passed profile properties', function () {
       return db.get({
         ...dbQueryParams,
         id: USER_ID,
