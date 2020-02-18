@@ -12,6 +12,7 @@ describe('createUser controller functionality', function () {
   const db = {};
   const validator = {};
   const dbQueryParams = {};
+  const hashPassword = {};
 
   let res;
   let engine;
@@ -32,7 +33,7 @@ describe('createUser controller functionality', function () {
       generateErrResponses = stub().returns({});
       return createUser(
         req, res, db, engine, validator, ValidationError,
-        errResponse, successResponse, dbQueryParams, generateErrResponses,
+        errResponse, successResponse, dbQueryParams, generateErrResponses, hashPassword,
       );
     });
 
@@ -42,7 +43,9 @@ describe('createUser controller functionality', function () {
       });
 
       it('with req, db, validator, ValidationError and dbQueryParams as arguments', function () {
-        assert(engine.calledWithExactly(req, db, validator, ValidationError, dbQueryParams));
+        assert(engine.calledWithExactly(
+          req, db, validator, ValidationError, dbQueryParams, hashPassword,
+        ));
       });
     });
   });
@@ -55,7 +58,7 @@ describe('createUser controller functionality', function () {
 
       promise = createUser(
         req, res, db, engine, validator, ValidationError,
-        errResponse, successResponse, dbQueryParams, generateErrResponses,
+        errResponse, successResponse, dbQueryParams, generateErrResponses, hashPassword,
       );
     });
 
@@ -82,7 +85,7 @@ describe('createUser controller functionality', function () {
 
       promise = createUser(
         req, res, db, engine, validator, ValidationError,
-        errResponse, successResponse, dbQueryParams, generateErrResponses,
+        errResponse, successResponse, dbQueryParams, generateErrResponses, hashPassword,
       );
     });
 
@@ -111,7 +114,7 @@ describe('createUser controller functionality', function () {
 
       promise = createUser(
         req, res, db, engine, validator, ValidationError,
-        errResponse, successResponse, dbQueryParams, generateErrResponses,
+        errResponse, successResponse, dbQueryParams, generateErrResponses, hashPassword,
       );
     });
 

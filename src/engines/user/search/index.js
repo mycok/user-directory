@@ -8,7 +8,7 @@ function search(req, db, validator, ...[ValidationError, dbQueryParams]) {
 
   const dbQuery = {
     ...dbQueryParams,
-    _source_excludes: ['digest', 'password'],
+    _source_excludes: ['password'],
   };
 
   if (query.query !== '') {

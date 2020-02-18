@@ -1,4 +1,4 @@
-function replace(req, db, validator, ValidationError, dbQueryParams) {
+function replace(req, db, validator, ...[ValidationError, dbQueryParams]) {
   const { user: { _id }, body } = req;
   const validationResults = validator(body);
 

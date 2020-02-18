@@ -11,17 +11,18 @@ When(/^it saves the response text in the context under ([\w.]+)$/, function (con
   objectPath.set(this, contextPath, JSON.parse(this.response.text)._id);
 });
 
-Then(/^the payload object should be added to the database, grouped under the "([a-zA-Z]+)" type$/, function (type, callback) {
+Then(/^the payload object should be added to the database, grouped under the "([a-zA-Z]+)" type$/, async function (type) {
   this.type = type;
 
-  client.get({
+  await client.get({
     index: process.env.ELASTICSEARCH_INDEX,
     type,
     id: this.userId,
+    _source_excludes: ['password'],
   }).then((result) => {
+    this.requestPayload = objectPath.del(this.requestPayload, 'password');
     assert.deepEqual(result._source, this.requestPayload);
-    callback();
-  }).catch(callback);
+  }).catch();
 });
 
 Then(/^our API should respond with a ([1-5]\d{2}) HTTP status code$/, function (statusCode) {

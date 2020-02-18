@@ -27,7 +27,7 @@ describe('retrieve engine functionality', function () {
       assert.deepEqual(db.get.getCall(0).args[0], {
         ...dbQueryParams,
         id: req.user._id,
-        _source_excludes: ['digest', 'password'],
+        _source_excludes: ['password'],
       });
     });
   });

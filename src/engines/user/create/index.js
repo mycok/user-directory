@@ -1,4 +1,4 @@
-function create(req, db, validator, ...[ValidationError, dbQueryParams]) {
+function create(req, db, validator, ...[ValidationError, dbQueryParams, hashPassword]) {
   const { body } = req;
   const validationResults = validator(body);
 
@@ -6,9 +6,11 @@ function create(req, db, validator, ...[ValidationError, dbQueryParams]) {
     return Promise.reject(validationResults);
   }
 
+  const password = hashPassword(body.password);
+
   return db.index({
     ...dbQueryParams,
-    body,
+    body: { ...body, password },
   })
     .then((({ _id, result }) => ({ _id, result })))
     .catch((() => Promise.reject(new Error('Internal server error'))));

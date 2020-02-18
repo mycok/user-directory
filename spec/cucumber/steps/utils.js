@@ -6,7 +6,7 @@ function getValidPayload(type, context = {}) {
     case 'create user':
       return {
         email: context.email || 'test@email.com',
-        password: context.password || 'pasSword#67',
+        password: context.password || 'paSSword#45',
       };
     case 'update user profile':
       return {
@@ -51,4 +51,6 @@ function processPath(context, path) {
   return substitutePath(context, path);
 }
 
-export { getValidPayload, convertStringToArray, processPath };
+export {
+  getValidPayload, convertStringToArray, processPath,
+};
