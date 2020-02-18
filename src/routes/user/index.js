@@ -18,7 +18,9 @@ import deleteUser from '../../controllers/user/delete';
 import search from '../../engines/user/search';
 import searchUsers from '../../controllers/user/search';
 import update from '../../engines/profile/update';
-import updateUser from '../../controllers/profile/update';
+import updateProfile from '../../controllers/profile/update';
+import replace from '../../engines/profile/replace';
+import replaceProfile from '../../controllers/profile/replace';
 
 import fetchById from '../../middleware/user-by-id';
 
@@ -32,13 +34,15 @@ const controllerToEngineMap = new Map([
   [retrieveUser, retrieve],
   [deleteUser, del],
   [searchUsers, search],
-  [updateUser, update],
+  [updateProfile, update],
+  [replaceProfile, replace],
 ]);
 
 const controllerToValidatorMap = new Map([
   [createUser, createValidator],
   [searchUsers, searchValidator],
-  [updateUser, updateValidator],
+  [updateProfile, updateValidator],
+  [replaceProfile, updateValidator],
 ]);
 
 const router = Router();
@@ -95,7 +99,18 @@ router.route('/users/:userId')
 
 router.route('/users/:userId/profile')
   .patch(injectControllerDependencies(
-    updateUser,
+    updateProfile,
+    db,
+    controllerToEngineMap,
+    controllerToValidatorMap,
+    ValidationError,
+    errResponse,
+    successResponse,
+    dbQueryParams,
+    generateErrResponses,
+  ))
+  .put(injectControllerDependencies(
+    replaceProfile,
     db,
     controllerToEngineMap,
     controllerToValidatorMap,

@@ -4,9 +4,9 @@ import { stub } from 'sinon';
 import ValidationError from '../../../errors/validation-error';
 import generateUpdateEngineStubs, { RESOLVED_RESULT, GENERIC_ERROR, VALIDATION_ERROR_MSG } from '../../../tests/stubs/engines/user/update';
 import generateResSpy from '../../../tests/spies/res';
-import updateUser from '.';
+import updateProfile from '.';
 
-describe('updateUser controller functionality', function () {
+describe('updateProfile controller functionality', function () {
   const req = {};
   const db = {};
   const dbQueryParams = {};
@@ -30,7 +30,7 @@ describe('updateUser controller functionality', function () {
       generateErrResponses = stub().returns(errResponse());
       engine = generateUpdateEngineStubs().success;
 
-      promise = updateUser(
+      promise = updateProfile(
         req, res, db, engine, validator,
         ValidationError, errResponse, successResponse, dbQueryParams, generateErrResponses,
       );
@@ -54,7 +54,7 @@ describe('updateUser controller functionality', function () {
       generateErrResponses = stub().returns(errResponse());
       engine = generateUpdateEngineStubs().success;
 
-      promise = updateUser(
+      promise = updateProfile(
         req, res, db, engine, validator,
         ValidationError, errResponse, successResponse, dbQueryParams, generateErrResponses,
       );
@@ -82,7 +82,7 @@ describe('updateUser controller functionality', function () {
       generateErrResponses = stub().returns(errResponse());
       engine = generateUpdateEngineStubs().genericError;
 
-      promise = updateUser(
+      promise = updateProfile(
         req, res, db, engine, validator,
         ValidationError, errResponse, successResponse, dbQueryParams, generateErrResponses,
       );
@@ -112,7 +112,7 @@ describe('updateUser controller functionality', function () {
       generateErrResponses = stub().returns(errResponse());
       engine = generateUpdateEngineStubs().genericError;
 
-      promise = updateUser(
+      promise = updateProfile(
         req, res, db, engine, validator,
         ValidationError, errResponse, successResponse, dbQueryParams, generateErrResponses,
       );

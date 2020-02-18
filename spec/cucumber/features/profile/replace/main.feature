@@ -1,14 +1,14 @@
-Feature: Update User Profile
+Feature: Replace User Profile
  Feature Description:
    Clients should be able to send a request to our API in order to update user profiles.
    Our API should validate the structure of the request payload and respond with an
    appropriate error in case the payload is invalid.
 
     Scenario: Not Found Bad Request
-    if a client sends a PATCH request to /users/:userId/profile with an unsupported payload,
+    if a client sends a PUT request to /users/:userId/profile with an unsupported payload,
     it should recieve a response with a 4xxx status code.
     
-        When a client creates a PATCH request to /users/userId/profile
+        When a client creates a PUT request to /users/userId/profile
         And it attaches a valid Update User Profile payload
         And it sends the request
         Then our API should respond with a 404 HTTP status code
@@ -16,10 +16,10 @@ Feature: Update User Profile
         And should contain a message property stating that "Not Found"
 
     Scenario Outline: Bad Request Requests
-    if a client sends a PATCH request to /users/:userId/profile with an unsupported payload,
+    if a client sends a PUT request to /users/:userId/profile with an unsupported payload,
     it should recieve a response with a 4xxx status code.
 
-        When a client creates a PATCH request to /users/:userId/profile
+        When a client creates a PUT request to /users/:userId/profile
         And it attaches a generic <payloadType> payload
         And it sends the request
         Then our API should respond with a <statusCode> HTTP status code
@@ -38,7 +38,7 @@ Feature: Update User Profile
         And it sends the request
         And it saves the response text in the context under userId
     
-      When a client creates a PATCH request to /users/:userId/profile
+      When a client creates a PUT request to /users/:userId/profile
         And it attaches an Update User Profile payload with additional <additionalField> fields
         And it sends the request
         Then our API should respond with a 400 HTTP status code
@@ -58,7 +58,7 @@ Feature: Update User Profile
             And it sends the request
             And it saves the response text in the context under userId
 
-        When a client creates a PATCH request to /users/:userId/profile
+        When a client creates a PUT request to /users/:userId/profile
         And it attaches an Update User Profile payload where the <field> field is not a <type>
         And it sends the request
         Then our API should respond with a 400 HTTP status code
@@ -76,14 +76,26 @@ Feature: Update User Profile
         | name.last   | string |
 
 
-    Scenario: Valid Profile Update
+    Scenario: Minimal Valid Profile Replacement
         Given a client creates a POST request to /users
             And it attaches a valid Create User payload
             And it sends the request
             And it saves the response text in the context under userId
     
-        When a client creates a PATCH request to /users/:userId/profile
+        When a client creates a PUT request to /users/:userId/profile
         And it attaches a valid Update User Profile payload
+        And it sends the request
+        Then our API should respond with a 200 HTTP status code
+        And the payload of the response should be a JSON object
+
+    Scenario Outline: Valid Profile Replacement
+        Given a client creates a POST request to /users
+            And it attaches a valid Create User payload
+            And it sends the request
+            And it saves the response text in the context under userId
+    
+        When a client creates a PUT request to /users/:userId/profile
+        And it attaches <payload> as payload
         And it sends the request
         Then our API should respond with a 200 HTTP status code
         And the payload of the response should be a JSON object
@@ -92,7 +104,15 @@ Feature: Update User Profile
         And it sends the request
         Then our API should respond with a 200 HTTP status code
         And the payload of the response should be a JSON object
-        And the root property of the response should be an object with the value {"email":"test@email.com","profile":{"name":{"first":"Michael","last":"Myco","middle":"Myckie"},"bio":"bio","summary":"summary"}}
+        And the profile property of the response should be an object with the value <payload>
         And the entity of type user, with ID stored under userId, should be deleted
 
+        Examples:
+        | payload                                                                                      |
+        | {"name":{}}                                                                                  |
+        | {"name":{"first":"Michael"}}                                                                 |
+        | {"bio":"bio"}                                                                                |
+        | {"summary":"summary"}                                                                        |
+        | {"name":{"first":"Michael","last":"Myco","middle":"Myckie"},"bio":"bio","summary":"summary"} |
+    
      

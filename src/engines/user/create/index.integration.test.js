@@ -33,8 +33,8 @@ describe('create engine integration', function () {
       promise = create(req, db, validate, ValidationError, dbQueryParams);
     });
 
-    this.afterEach(function () {
-      db.delete({
+    this.afterEach(async function () {
+      await db.delete({
         index: process.env.ELASTICSEARCH_INDEX,
         type: 'user',
         id: userId,
