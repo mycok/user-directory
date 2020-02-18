@@ -1,7 +1,15 @@
-import { Given } from 'cucumber';
+import { Given, Before } from 'cucumber';
 import db from '../../../src/database/elasticsearch-setup';
 
 const client = db;
+
+Before(function () {
+  return client.indices.delete({
+    index: process.env.ELASTICSEARCH_INDEX,
+  }).then(() => client.indices.create({
+    index: process.env.ELASTICSEARCH_INDEX,
+  }));
+});
 
 Given(/^(\d+|all) documents in the (?:"|')([\w-]+)(?:"|'') sample are added to the index with type (?:"|')([\w-]+)(?:"|'')$/, function (count, sourceFile, type) {
   const numericCount = Number.isNaN(parseInt(count, 10)) ? Infinity : parseInt(count, 10);

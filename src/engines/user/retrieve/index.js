@@ -4,7 +4,7 @@ function retrieve(req, db, dbQueryParams) {
   return db.get({
     ...dbQueryParams,
     id: _id,
-    _source_excludes: ['digest', 'password'],
+    _source_excludes: ['password'],
   })
     .then(({ _source }) => _source)
     .catch(() => Promise.reject(new Error('Internal server error')));

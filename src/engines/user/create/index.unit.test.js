@@ -1,4 +1,5 @@
 import assert from 'assert';
+import { stub } from 'sinon';
 
 import ValidationError from '../../../errors/validation-error';
 import generateValidatorStubs, { VALIDATION_ERROR } from '../../../tests/stubs/validation';
@@ -10,12 +11,15 @@ import create from '.';
 
 describe('create engine functionality', function () {
   const req = {
-    body: {},
+    body: {
+      password: {},
+    },
   };
   const dbQueryParams = {
     index: process.env.ELASTICSEARCH_INDEX,
     type: 'user',
   };
+  const hashPassword = stub().returns({});
 
   let db;
   let validator;
@@ -27,7 +31,7 @@ describe('create engine functionality', function () {
         index: generateGetClientStubs.success(),
       };
       validator = generateValidatorStubs().valid;
-      return create(req, db, validator, ValidationError, dbQueryParams);
+      return create(req, db, validator, ValidationError, dbQueryParams, hashPassword);
     });
 
     it('should call the client.index() with the correct params', function () {
@@ -38,13 +42,27 @@ describe('create engine functionality', function () {
     });
   });
 
+  describe('when invoked', function () {
+    this.beforeEach(function () {
+      db = {
+        index: generateGetClientStubs.success(),
+      };
+      validator = generateValidatorStubs().valid;
+      return create(req, db, validator, ValidationError, dbQueryParams, hashPassword);
+    });
+
+    it('should call the hashPassword() with the correct params', function () {
+      assert.deepEqual(hashPassword.getCall(0).args[0], req.body.password);
+    });
+  });
+
   describe('when invoked and the validator function returns undefined', function () {
     this.beforeEach(function () {
       db = {
         index: generateGetClientStubs.success(),
       };
       validator = generateValidatorStubs().valid;
-      promise = create(req, db, validator, ValidationError, dbQueryParams);
+      promise = create(req, db, validator, ValidationError, dbQueryParams, hashPassword);
     });
     describe('should call the validator()', function () {
       it('once', function () {
@@ -67,7 +85,7 @@ describe('create engine functionality', function () {
         index: generateGetClientStubs.success(),
       };
       validator = generateValidatorStubs().invalid;
-      promise = create(req, db, validator, ValidationError, dbQueryParams);
+      promise = create(req, db, validator, ValidationError, dbQueryParams, hashPassword);
     });
     it('should reject with a ValidationError', function () {
       return promise.catch((err) => assert.strictEqual(err, VALIDATION_ERROR));
@@ -80,7 +98,7 @@ describe('create engine functionality', function () {
         index: generateGetClientStubs.genericError(),
       };
       validator = generateValidatorStubs().valid;
-      promise = create(req, db, validator, ValidationError, dbQueryParams);
+      promise = create(req, db, validator, ValidationError, dbQueryParams, hashPassword);
     });
     it('should reject with an internal server error', function () {
       return promise.catch((err) => assert.strictEqual(err.message, GENERIC_ERROR.message));

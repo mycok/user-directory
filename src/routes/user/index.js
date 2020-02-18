@@ -28,6 +28,7 @@ import injectControllerDependencies from '../../utils/inject-controller-dependen
 import errResponse from '../../utils/errResponse';
 import successResponse from '../../utils/successResponse';
 import generateErrResponses from '../../utils/errors';
+import hashPassword from '../../utils/hashPassword';
 
 const controllerToEngineMap = new Map([
   [createUser, create],
@@ -60,6 +61,7 @@ router.route('/users')
     successResponse,
     dbQueryParams,
     generateErrResponses,
+    hashPassword,
   ))
   .get(injectControllerDependencies(
     searchUsers,
@@ -71,6 +73,7 @@ router.route('/users')
     successResponse,
     dbQueryParams,
     generateErrResponses,
+    hashPassword,
   ));
 
 router.route('/users/:userId')
@@ -84,6 +87,7 @@ router.route('/users/:userId')
     successResponse,
     dbQueryParams,
     generateErrResponses,
+    hashPassword,
   ))
   .delete(injectControllerDependencies(
     deleteUser,
@@ -95,6 +99,7 @@ router.route('/users/:userId')
     successResponse,
     dbQueryParams,
     generateErrResponses,
+    hashPassword,
   ));
 
 router.route('/users/:userId/profile')
@@ -108,6 +113,7 @@ router.route('/users/:userId/profile')
     successResponse,
     dbQueryParams,
     generateErrResponses,
+    hashPassword,
   ))
   .put(injectControllerDependencies(
     replaceProfile,
@@ -119,6 +125,7 @@ router.route('/users/:userId/profile')
     successResponse,
     dbQueryParams,
     generateErrResponses,
+    hashPassword,
   ));
 
 export default router;

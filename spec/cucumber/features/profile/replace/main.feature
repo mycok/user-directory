@@ -15,7 +15,7 @@ Feature: Replace User Profile
         And the payload of the response should be a JSON object
         And should contain a message property stating that "Not Found"
 
-    Scenario Outline: Bad Request Requests
+    Scenario Outline: Bad Requests
     if a client sends a PUT request to /users/:userId/profile with an unsupported payload,
     it should recieve a response with a 4xxx status code.
 
