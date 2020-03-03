@@ -11,10 +11,10 @@ const RESOLVED_USERS = [{
 const GENERIC_ERROR_MSG = 'Internal server error';
 const GENERIC_ERROR = new Error(GENERIC_ERROR_MSG);
 const VALIDATION_ERROR_MSG = 'field validation error';
-
+const VALIDATION_ERROR = new ValidationError(VALIDATION_ERROR_MSG);
 const generateSearchEngineStubs = () => ({
   success: stub().resolves(RESOLVED_USERS),
-  validationError: stub().rejects(new ValidationError(VALIDATION_ERROR_MSG)),
+  validationError: stub().rejects(VALIDATION_ERROR),
   genericError: stub().rejects(GENERIC_ERROR),
 });
 
@@ -22,6 +22,5 @@ export {
   generateSearchEngineStubs as default,
   RESOLVED_USERS,
   GENERIC_ERROR,
-  GENERIC_ERROR_MSG,
-  VALIDATION_ERROR_MSG,
+  VALIDATION_ERROR,
 };

@@ -14,8 +14,8 @@ Feature: General
       Examples:
          | method |
          | POST   |
-         # | PUT    |
-         # | PATCH  |
+         | PUT    |
+         | PATCH  |
 
    Scenario Outline: Content-Type Header Property Should Be Set For Requests With NonEmpty Payloads
       All requests with non-zero value for their Content-Length header property must have their
@@ -32,8 +32,8 @@ Feature: General
       Examples:
          | method |
          | POST   |
-         # | PUT    |
-         # | PATCH  |
+         | PUT    |
+         | PATCH  |
 
    Scenario Outline: Content-Type Header Should Be Set To 'application/json'
       All requests which have a "Content-Type" header property must have set its value to "application/json"
@@ -48,5 +48,5 @@ Feature: General
       Examples:
          | method |
          | POST   |
-         # | PUT    |
-         # | PATCH  |
+         | PUT    |
+         | PATCH  |

@@ -9,7 +9,7 @@ import generateDeleteEngineStubs,
   from '../../../tests/stubs/engines/user/delete';
 import deleteUser from '.';
 
-describe('DeleteUser controller functionality', function () {
+describe('deleteUser controller functionality', function () {
   const req = {};
   const db = {};
   const dbQueryParams = {};

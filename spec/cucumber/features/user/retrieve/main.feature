@@ -24,7 +24,3 @@ Feature: Retrieve User
         And the payload of the response should be a JSON object
         And the root property of the response should be the same as context.requestPayload but without the password field
         And the entity of type user, with ID stored under userId, should be deleted
-
-      
-     
- 

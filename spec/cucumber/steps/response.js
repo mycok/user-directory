@@ -19,9 +19,10 @@ Then(/^the payload object should be added to the database, grouped under the "([
     type,
     id: this.userId,
     _source_excludes: ['password'],
-  }).then((result) => {
+  }).then(({ _source }) => {
     this.requestPayload = objectPath.del(this.requestPayload, 'password');
-    assert.deepEqual(result._source, this.requestPayload);
+    objectPath.del(_source, 'searchTerm');
+    assert.deepEqual(_source, this.requestPayload);
   }).catch();
 });
 
@@ -61,11 +62,14 @@ Then(/^the ([\w.]+) property of the response should be the same as context\.([\w
 });
 
 Then(/^the ([\w.]+) property of the response should be the same as context\.([\w.]+) but without the ([\w.]+) fields?$/, function (responseProperty, contextProperty, missingFields) {
-  const responseContextObject = objectPath.get(this, contextProperty);
+  const requestContextObject = objectPath.get(this, contextProperty);
+  const responseContextObject = objectPath.get(this.response, (responseProperty === 'root' ? '' : responseProperty));
   const fieldsToDelete = convertStringToArray(missingFields);
-  fieldsToDelete.forEach((field) => delete responseContextObject[field]);
 
-  assert.deepEqual(objectPath.get(this.response, (responseProperty === 'root' ? '' : responseProperty)), responseContextObject);
+  fieldsToDelete.forEach((field) => delete requestContextObject[field]);
+  delete responseContextObject.searchTerm;
+
+  assert.deepEqual(requestContextObject, responseContextObject);
 });
 
 Then(/^should contain ([\d]+) items$/, function (count) {
@@ -89,4 +93,8 @@ Then(/^the ([\w.]+) property of the response should be an? ([\w.]+) with the val
   }());
 
   assert.deepEqual(objectPath.get(this.response, (responseProperty === 'root' ? '' : responseProperty)), parseExpectedResponseValue);
+});
+
+Then(/^the string should contain the word ([\w.]+)$/, function (word) {
+  assert.deepEqual(this.response, word);
 });

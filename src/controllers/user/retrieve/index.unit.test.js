@@ -4,7 +4,7 @@ import { stub } from 'sinon';
 import generateResSpy from '../../../tests/spies/res';
 import generateRetrieveEngineStubs,
 {
-  RESOLVED_USER_OBJ, GENERIC_ERROR_MSG,
+  RESOLVED_USER_OBJ, GENERIC_ERROR_MSG, GENERIC_ERROR,
 }
   from '../../../tests/stubs/engines/user/retrieve';
 import retrieveUser from '.';
@@ -91,12 +91,13 @@ describe('retrieveUser controller functionality', function () {
 
     describe('should call generateErrResponses()', function () {
       it('once', function () {
-        return promise.catch((err) => assert(generateErrResponses.calledOnce));
+        assert(generateErrResponses.calledOnce);
       });
       it('with res, err and errResponse arguments', function () {
-        return promise.catch((err) => assert(
+        const err = GENERIC_ERROR;
+        assert(
           generateErrResponses.calledWithExactly(res, err, errResponse),
-        ));
+        );
       });
 
       it('should return a generic error message as the response', async function () {

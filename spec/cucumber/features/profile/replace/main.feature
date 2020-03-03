@@ -32,7 +32,7 @@ Feature: Replace User Profile
         | malformed JSON | 400        | "Payload should be in JSON format"                                     |
         | non JSON       | 415        | 'The "Content-Type" header property must always be "application/json"' |
 
-    Scenario Outline: Profile Payload with additional Properties
+    Scenario Outline: Profile Payload With Additional Properties
      Given a client creates a POST request to /users
         And it attaches a valid Create User payload
         And it sends the request
@@ -52,7 +52,7 @@ Feature: Replace User Profile
     | foo, bar        | The '.profile' object does not support the field 'foo' |
 
 
-    Scenario Outline: Profile Payload with Properties of Unsupported Type
+    Scenario Outline: Profile Payload With Properties Of Unsupported Type
         Given a client creates a POST request to /users
             And it attaches a valid Create User payload
             And it sends the request
@@ -114,5 +114,3 @@ Feature: Replace User Profile
         | {"bio":"bio"}                                                                                |
         | {"summary":"summary"}                                                                        |
         | {"name":{"first":"Michael","last":"Myco","middle":"Myckie"},"bio":"bio","summary":"summary"} |
-    
-     

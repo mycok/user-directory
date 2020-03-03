@@ -10,7 +10,7 @@ function create(req, db, validator, ...[ValidationError, dbQueryParams, hashPass
 
   return db.index({
     ...dbQueryParams,
-    body: { ...body, password },
+    body: { ...body, password, searchTerm: body.email.replace(/[^\w-]/gi, '').trim() },
   })
     .then((({ _id, result }) => ({ _id, result })))
     .catch((() => Promise.reject(new Error('Internal server error'))));

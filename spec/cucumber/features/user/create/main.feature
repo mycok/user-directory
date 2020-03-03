@@ -23,33 +23,41 @@ Feature: Create User
          | malformed JSON | 400        | "Payload should be in JSON format"                            |
          | non JSON       | 415        | 'The "Content-Type" header property must always be "application/json"' |
 
-   Scenario Outline: Request Payload With Missing Required Properties
+   Scenario: Request Payload With Missing Email Address
 
       When a client creates a POST request to /users
-      And it attaches a Create User payload which is missing the <missingFields> field
+      And it attaches a Create User payload which is missing the email field
       And it sends the request
       Then our API should respond with a 400 HTTP status code
       And the payload of the response should be a JSON object
-      And should contain a message property stating that <message>
+      And should contain a message property stating that "The '.email' field is missing"
+    
+   Scenario: Request Payload With Missing Password
 
-      Examples:
-      | missingFields | message |
-      | email         | "The '.email' field is missing" |
-      | password      | "The '.password' field is missing" |
+      When a client creates a POST request to /users
+      And it attaches a Create User payload which is missing the password field
+      And it sends the request
+      Then our API should respond with a 400 HTTP status code
+      And the payload of the response should be a JSON object
+      And should contain a message property stating that "The '.password' field is missing"
 
-   Scenario Outline: Request Payload With Properties of Unsupported Type
+   Scenario: Request Payload With Email Of Unsupported Type
 
    When a client creates a POST request to /users
-   And it attaches a Create User payload where the <field> field is not a <type>
+   And it attaches a Create User payload where the email field is not a string
    And it sends the request
    Then our API should respond with a 400 HTTP status code
    And the payload of the response should be a JSON object
-   And should contain a message property stating that "The '.<field>' field must be of type <type>"
+   And should contain a message property stating that "The '.email' field must be of type string"
+   
+   Scenario: Request Payload With Password Of Unsupported Type
 
-   Examples:
-   | field | type |
-   | email | string |
-   | password | string |
+   When a client creates a POST request to /users
+   And it attaches a Create User payload where the password field is not a string
+   And it sends the request
+   Then our API should respond with a 400 HTTP status code
+   And the payload of the response should be a JSON object
+   And should contain a message property stating that "The '.password' field must be of type string"
 
    Scenario Outline: Request Payload With An Invalid Email Format
 
