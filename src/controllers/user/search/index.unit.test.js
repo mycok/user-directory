@@ -2,7 +2,7 @@ import assert from 'assert';
 import { stub } from 'sinon';
 
 import ValidationError from '../../../errors/validation-error';
-import generateSearchEngineStubs, { RESOLVED_USERS, GENERIC_ERROR, VALIDATION_ERROR_MSG } from '../../../tests/stubs/engines/user/search';
+import generateSearchEngineStubs, { RESOLVED_USERS, GENERIC_ERROR, VALIDATION_ERROR } from '../../../tests/stubs/engines/user/search';
 import generateResSpy from '../../../tests/spies/res';
 import searchUser from '.';
 
@@ -76,7 +76,7 @@ describe('searchUser controller functionality', function () {
 
   describe('when invoked with an invalid search query and it rejects', function () {
     beforeEach(function () {
-      errResponse = stub().returns({ message: VALIDATION_ERROR_MSG });
+      errResponse = stub().returns({ message: VALIDATION_ERROR.message });
       successResponse = stub().returns({});
       generateErrResponses = stub().returns(errResponse());
       engine = generateSearchEngineStubs().validationError;
@@ -89,19 +89,19 @@ describe('searchUser controller functionality', function () {
 
     describe('it should call generateErrResponses()', function () {
       it('once', function () {
-        return promise.catch((err) => {
-          console.log('searchhhhhhhhh', err);
-          assert(generateErrResponses.calledOnce);
-        });
-      });
-      it('with res, err, errResponse and ValidationError', function () {
-        return promise.catch((err) => assert(
-          generateErrResponses.calledWithExactly(err),
-        ));
+        assert(generateErrResponses.calledOnce);
       });
 
-      it('should return a validation error message as the response', function () {
-        return promise.catch((err) => assert.strictEqual(err.message, VALIDATION_ERROR_MSG));
+      it('with res, err, errResponse and ValidationError', function () {
+        const err = VALIDATION_ERROR;
+        assert(
+          generateErrResponses.calledWithExactly(res, err, errResponse, ValidationError),
+        );
+      });
+
+      it('should return a validation error message as the response', async function () {
+        const error = await promise;
+        assert.strictEqual(error.message, VALIDATION_ERROR.message);
       });
     });
   });
@@ -121,12 +121,13 @@ describe('searchUser controller functionality', function () {
 
     describe('should call generateErrResponses()', function () {
       it('once', function () {
-        return promise.catch(() => assert(generateErrResponses.calledOnce));
+        assert(generateErrResponses.calledOnce);
       });
       it('with res, 500 and message arguments', function () {
-        return promise.catch((err) => assert(
+        const err = GENERIC_ERROR;
+        assert(
           generateErrResponses.calledWithExactly(res, err, errResponse, ValidationError),
-        ));
+        );
       });
 
       it('should return a generic error message as the response', async function () {

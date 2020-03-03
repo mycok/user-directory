@@ -12,6 +12,7 @@ import create from '.';
 describe('create engine functionality', function () {
   const req = {
     body: {
+      email: 'test@usermail.com',
       password: {},
     },
   };
@@ -37,7 +38,7 @@ describe('create engine functionality', function () {
     it('should call the client.index() with the correct params', function () {
       assert.deepEqual(db.index.getCall(0).args[0], {
         ...dbQueryParams,
-        body: req.body,
+        body: { ...req.body, searchTerm: req.body.email.replace(/[^\w-]/gi, '').trim() },
       });
     });
   });

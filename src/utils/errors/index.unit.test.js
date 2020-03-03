@@ -42,4 +42,38 @@ describe('controller error handler functionality', function () {
       assert(errResponse.calledWithExactly(res, 500, err.message));
     });
   });
+
+  describe('when invoked with a Not Found error', function () {
+    this.beforeEach(function () {
+      err = new Error('Not Found');
+      errResponse = stub().returns({ message: err.message });
+
+      return generateErrResponse(res, err, errResponse);
+    });
+
+    it('should call errResponse() once', function () {
+      assert(errResponse.calledOnce);
+    });
+
+    it('with all the required arguments', function () {
+      assert(errResponse.calledWithExactly(res, 404, err.message));
+    });
+  });
+
+  describe('when invoked with an Invalid Password error', function () {
+    this.beforeEach(function () {
+      err = new Error('Invalid password');
+      errResponse = stub().returns({ message: err.message });
+
+      return generateErrResponse(res, err, errResponse);
+    });
+
+    it('should call errResponse() once', function () {
+      assert(errResponse.calledOnce);
+    });
+
+    it('with all the required arguments', function () {
+      assert(errResponse.calledWithExactly(res, 401, err.message));
+    });
+  });
 });

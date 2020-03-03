@@ -25,13 +25,3 @@ Feature: Delete user
         Then our API should respond with a 404 HTTP status code
         And the payload of the response should be a JSON object
         And should contain a message property stating that 'Not Found'
-
-
-
-
-     
-
-     
-
-
- 

@@ -18,7 +18,7 @@
     "test:run:server": "yarn run build && dotenv -e ./envs/test.env -e ./envs/.env node ./dist/index.js",
     "build": "rimraf dist && babel -D ./src -d ./dist",
     "serve": "yarn run build && dotenv -e ./envs/.env pm2 start ./dist/index.js",
-    "dev": "yarn run build && dotenv -e ./envs/.env nodemon -w ./src --exec node ./dist/index.js",
+    "dev": "yarn run build && dotenv -e ./envs/.env nodemon -- node ./dist/index.js",
     "fix": "eslint ./spec ./src --fix",
     "lint": "eslint ./spec ./src"
   },
@@ -39,7 +39,8 @@
   "homepage": "https://github.com/mycok/user-directory#readme",
   "husky": {
     "hooks": {
-      "pre-commit": "yarn run lint"
+      "pre-commit": "yarn run lint",
+      "pre-push": "yarn run test:dev:coverage"
     }
   },
   "devDependencies": {

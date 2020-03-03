@@ -32,7 +32,7 @@ Feature: Update User Profile
         | malformed JSON | 400        | "Payload should be in JSON format"                                     |
         | non JSON       | 415        | 'The "Content-Type" header property must always be "application/json"' |
 
-    Scenario Outline: Profile Payload with additional Properties
+    Scenario Outline: Profile Payload With Additional Properties
      Given a client creates a POST request to /users
         And it attaches a valid Create User payload
         And it sends the request
@@ -52,7 +52,7 @@ Feature: Update User Profile
     | foo, bar        | The '.profile' object does not support the field 'foo' |
 
 
-    Scenario Outline: Profile Payload with Properties of Unsupported Type
+    Scenario Outline: Profile Payload With Properties Of Unsupported Type
         Given a client creates a POST request to /users
             And it attaches a valid Create User payload
             And it sends the request
@@ -92,7 +92,6 @@ Feature: Update User Profile
         And it sends the request
         Then our API should respond with a 200 HTTP status code
         And the payload of the response should be a JSON object
-        And the root property of the response should be an object with the value {"email":"test@email.com","profile":{"name":{"first":"Michael","last":"Myco","middle":"Myckie"},"bio":"bio","summary":"summary"}}
+        And the root property of the response should be an object with the value {"email":"test@email.com","profile":{"name":{"first":"Michael","last":"Myco","middle":"Myckie"},"bio":"bio","summary":"summary"}, "searchTerm": "testemailcom"}
         And the entity of type user, with ID stored under userId, should be deleted
 
-     

@@ -1,5 +1,6 @@
 import { Given, Before } from 'cucumber';
 import db from '../../../src/database/elasticsearch-setup';
+import hashPassword from '../../../src/utils/hashPassword';
 
 const client = db;
 
@@ -10,6 +11,32 @@ Before(function () {
     index: process.env.ELASTICSEARCH_INDEX,
   }));
 });
+
+async function createUser() {
+  const user = {};
+  const password = 'paSSword#45';
+  user.email = 'test@email.com';
+  user.password = hashPassword(password);
+  const result = await client.index({
+    index: process.env.ELASTICSEARCH_INDEX,
+    type: 'user',
+    body: {
+      email: user.email,
+      password: user.password,
+      searchTerm: user.email.replace(/[^\w-]/gi, '').trim(),
+    },
+    refresh: true,
+  });
+  user.id = result._id;
+  return user;
+}
+
+Given('1 new user is created with random password and email', async function () {
+  const { email, password } = await createUser();
+  this.email = email;
+  this.password = password;
+});
+
 
 Given(/^(\d+|all) documents in the (?:"|')([\w-]+)(?:"|'') sample are added to the index with type (?:"|')([\w-]+)(?:"|'')$/, function (count, sourceFile, type) {
   const numericCount = Number.isNaN(parseInt(count, 10)) ? Infinity : parseInt(count, 10);

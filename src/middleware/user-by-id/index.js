@@ -5,7 +5,7 @@ export default function (req, res, next, id) {
     index: process.env.ELASTICSEARCH_INDEX,
     type: 'user',
     id,
-    _source_excludes: ['digest', 'password'],
+    _source_excludes: ['password'],
   })
     .then(({ _id, _source }) => {
       req.user = { _id, _source };

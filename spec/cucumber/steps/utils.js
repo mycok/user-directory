@@ -4,9 +4,10 @@ function getValidPayload(type, context = {}) {
   const lowercaseType = type.toLowerCase();
   switch (lowercaseType) {
     case 'create user':
+    case 'login':
       return {
-        email: context.email || 'test@email.com',
-        password: context.password || 'paSSword#45',
+        email: 'test@email.com' || context.email,
+        password: 'paSSword#45' || context.password,
       };
     case 'update user profile':
       return {
@@ -18,7 +19,6 @@ function getValidPayload(type, context = {}) {
         bio: 'bio',
         summary: 'summary',
       };
-
     default:
       return undefined;
   }

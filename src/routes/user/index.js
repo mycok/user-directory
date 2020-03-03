@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import { compareSync } from 'bcryptjs';
 
 import db from '../../database/elasticsearch-setup';
 import dbQueryParams from '../../database/dbQueryParams';
@@ -21,6 +22,8 @@ import update from '../../engines/profile/update';
 import updateProfile from '../../controllers/profile/update';
 import replace from '../../engines/profile/replace';
 import replaceProfile from '../../controllers/profile/replace';
+import login from '../../engines/Auth';
+import userLogin from '../../controllers/Auth';
 
 import fetchById from '../../middleware/user-by-id';
 
@@ -30,6 +33,11 @@ import successResponse from '../../utils/successResponse';
 import generateErrResponses from '../../utils/errors';
 import hashPassword from '../../utils/hashPassword';
 
+import checkDuplicates from '../../middleware/check-duplicates';
+
+// to be replaced by a JWT library sign function
+const sign = () => {};
+
 const controllerToEngineMap = new Map([
   [createUser, create],
   [retrieveUser, retrieve],
@@ -37,6 +45,7 @@ const controllerToEngineMap = new Map([
   [searchUsers, search],
   [updateProfile, update],
   [replaceProfile, replace],
+  [userLogin, login],
 ]);
 
 const controllerToValidatorMap = new Map([
@@ -44,6 +53,7 @@ const controllerToValidatorMap = new Map([
   [searchUsers, searchValidator],
   [updateProfile, updateValidator],
   [replaceProfile, updateValidator],
+  [userLogin, createValidator],
 ]);
 
 const router = Router();
@@ -51,18 +61,21 @@ const router = Router();
 router.param('userId', fetchById);
 
 router.route('/users')
-  .post(injectControllerDependencies(
-    createUser,
-    db,
-    controllerToEngineMap,
-    controllerToValidatorMap,
-    ValidationError,
-    errResponse,
-    successResponse,
-    dbQueryParams,
-    generateErrResponses,
-    hashPassword,
-  ))
+  .post(checkDuplicates,
+    injectControllerDependencies(
+      createUser,
+      db,
+      controllerToEngineMap,
+      controllerToValidatorMap,
+      ValidationError,
+      errResponse,
+      successResponse,
+      dbQueryParams,
+      generateErrResponses,
+      hashPassword,
+      compareSync,
+      sign,
+    ))
   .get(injectControllerDependencies(
     searchUsers,
     db,
@@ -74,6 +87,8 @@ router.route('/users')
     dbQueryParams,
     generateErrResponses,
     hashPassword,
+    compareSync,
+    sign,
   ));
 
 router.route('/users/:userId')
@@ -88,6 +103,8 @@ router.route('/users/:userId')
     dbQueryParams,
     generateErrResponses,
     hashPassword,
+    compareSync,
+    sign,
   ))
   .delete(injectControllerDependencies(
     deleteUser,
@@ -100,6 +117,8 @@ router.route('/users/:userId')
     dbQueryParams,
     generateErrResponses,
     hashPassword,
+    compareSync,
+    sign,
   ));
 
 router.route('/users/:userId/profile')
@@ -114,6 +133,8 @@ router.route('/users/:userId/profile')
     dbQueryParams,
     generateErrResponses,
     hashPassword,
+    compareSync,
+    sign,
   ))
   .put(injectControllerDependencies(
     replaceProfile,
@@ -126,6 +147,24 @@ router.route('/users/:userId/profile')
     dbQueryParams,
     generateErrResponses,
     hashPassword,
+    compareSync,
+    sign,
+  ));
+
+router.route('/login')
+  .post(injectControllerDependencies(
+    userLogin,
+    db,
+    controllerToEngineMap,
+    controllerToValidatorMap,
+    ValidationError,
+    errResponse,
+    successResponse,
+    dbQueryParams,
+    generateErrResponses,
+    hashPassword,
+    compareSync,
+    sign,
   ));
 
 export default router;
