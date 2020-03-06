@@ -1,5 +1,6 @@
 import assert from 'assert';
 import { compareSync } from 'bcryptjs';
+import { sign } from 'jsonwebtoken';
 
 import ValidationError from '../../errors/validation-error';
 import validate from '../../validators/user/create/validate';
@@ -12,7 +13,6 @@ describe('login engine integration', function () {
   let promise;
   let req;
   const USER_ID = 'USER_ID';
-  const sign = {};
 
   describe('when invoked with an invalid request', function () {
     this.beforeEach(function () {

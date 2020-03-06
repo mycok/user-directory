@@ -1,4 +1,5 @@
-import assert from 'assert';
+import assert, { AssertionError } from 'assert';
+import { decode } from 'jsonwebtoken';
 import { Then, When } from 'cucumber';
 import objectPath from 'object-path';
 
@@ -8,7 +9,11 @@ import { convertStringToArray } from './utils';
 const client = db;
 
 When(/^it saves the response text in the context under ([\w.]+)$/, function (contextPath) {
-  objectPath.set(this, contextPath, JSON.parse(this.response.text)._id);
+  if (contextPath === 'userId') {
+    objectPath.set(this, contextPath, JSON.parse(this.response.text)._id);
+  } else {
+    objectPath.set(this, contextPath, this.response.text);
+  }
 });
 
 Then(/^the payload object should be added to the database, grouped under the "([a-zA-Z]+)" type$/, async function (type) {
@@ -81,10 +86,17 @@ Then(/^the first item of the response should contain a property ([\w.]+) set to 
 });
 
 Then(/^the ([\w.]+) property of the response should be an? ([\w.]+) with the value (.+)$/, function (responseProperty, expectedResponseType, expectedResponseValue) {
+  const user = { ...this.users[0] };
+  delete user.password;
+  delete user._id;
   const parseExpectedResponseValue = (function () {
     switch (expectedResponseType) {
-      case 'object':
-        return JSON.parse(expectedResponseValue);
+      case 'object': {
+        if (responseProperty === 'profile') {
+          return JSON.parse(expectedResponseValue);
+        }
+        return { ...user, ...JSON.parse(expectedResponseValue) };
+      }
       case 'string':
         return expectedResponseValue.replace(/^(?:["'])(.*)(?:["'])$/);
       default:
@@ -92,9 +104,21 @@ Then(/^the ([\w.]+) property of the response should be an? ([\w.]+) with the val
     }
   }());
 
-  assert.deepEqual(objectPath.get(this.response, (responseProperty === 'root' ? '' : responseProperty)), parseExpectedResponseValue);
+  const response = objectPath.get(this.response, (responseProperty === 'root' ? '' : responseProperty));
+  delete response.searchTerm;
+
+  assert.deepEqual(response, parseExpectedResponseValue);
 });
 
-Then(/^the string should contain the word ([\w.]+)$/, function (word) {
-  assert.deepEqual(this.response, word);
+Then(/^the response token should satisfy the regular expression (.+)$/, function (regex) {
+  const re = new RegExp(regex.trim().replace(/^\/|\/$/g, ''));
+  assert.equal(re.test(this.response), true);
+});
+
+Then(/^the JWT payload should have a claim with name (\w+) equal to context.([\w-]+)$/, function (claimName, contextPath) {
+  const decodedTokenPayload = decode(this.response);
+  if (decodedTokenPayload === null) {
+    throw new AssertionError();
+  }
+  assert.equal(decodedTokenPayload[claimName], objectPath.get(this, contextPath));
 });

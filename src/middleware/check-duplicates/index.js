@@ -2,14 +2,8 @@ import db from '../../database/elasticsearch-setup';
 
 export default function (req, res, next) {
   const { body: { email } } = req;
-
-  if (typeof email === 'undefined') {
-    return res.status(400).set('Content-Type', 'application/json').json({ message: "The '.email' field is missing" });
-  }
-
-  if (typeof email !== 'string') {
-    return res.status(400).set('Content-Type', 'application/json').json({ message: "The '.email' field must be of type string" });
-  }
+  if (typeof email === 'undefined') return res.status(400).json({ message: "The '.email' field is missing" });
+  if (typeof email !== 'string') return res.status(400).json({ message: "The '.email' field must be of type string" });
 
   return db.search({
     index: process.env.ELASTICSEARCH_INDEX,

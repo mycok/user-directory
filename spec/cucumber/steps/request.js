@@ -37,6 +37,20 @@ When(/^without setting the (?:"|')([\w-]+)(?:"|') property$/, function (headerNa
   this.request.unset(headerName);
 });
 
+When(/^it sets the HTTP header field (?:"|')?([\w-]+)(?:"|')? to (?:"|')?(.+)(?:"|')?$/, function (headerName, value) {
+  this.request.set(headerName, value);
+});
+
+When(/^it sets the Authorization header to a token with a wrong signature$/, function () {
+  // Appending anything to the end of the signature will invalidate it
+  const tokenWithInvalidSignature = `${this.token}a`;
+  this.request.set('Authorization', `Bearer ${tokenWithInvalidSignature}`);
+});
+
+When(/^it sets the Authorization header to a valid token signature$/, function () {
+  this.request.set('Authorization', `Bearer ${this.token}`);
+});
+
 When(/^it attaches a? (.+) payload which is missing the ([a-zA-Z0-9, ]+) field$/, function (payloadType, missingField) {
   this.requestPayload = getValidPayload(payloadType, this);
 
