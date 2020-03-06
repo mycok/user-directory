@@ -76,6 +76,7 @@ describe('login engine functionality', function () {
           search: generateSearchClientStubs.success(),
         };
         compareSync = stub().returns(true);
+        sign = stub().returns('token');
 
         promise = login(req, db, validator, ValidationError, dbQueryParams, compareSync, sign);
         return promise;
@@ -106,6 +107,7 @@ describe('login engine functionality', function () {
           search: generateSearchClientStubs.success(),
         };
         compareSync = stub().returns(true);
+        sign = stub().returns('token');
 
         promise = login(req, db, validator, ValidationError, dbQueryParams, compareSync, sign);
         return promise;
@@ -126,7 +128,7 @@ describe('login engine functionality', function () {
       });
     });
 
-    describe('and if the search operation is successful', function () {
+    describe('and the search operation is successful', function () {
       this.beforeEach(function () {
         req = requestFactory.valid();
         validator = generateValidatorStubs().valid;
@@ -150,13 +152,16 @@ describe('login engine functionality', function () {
         ));
       });
 
-      //   it('should then call the sign()', function () {
-      //     assert(sign.calledOnce);
-      //   });
+      it('should then call the sign()', function () {
+        assert(sign.calledOnce);
+      });
 
-      //   it('which should take an email as a parameter, generate a token', function () {
-      //     assert(sign.calledWithExactly(req.body.email));
-      //   });
+      it('with payload and private key as arguments in order to generate a token', function () {
+        const payload = { sub: 'GHDTYEUEIEJ' };
+        assert(sign.calledWithExactly(
+          { sub: ES_SEARCH_RESULTS.hits.hits[0]._id }, process.env.PRIVATE_KEY,
+        ));
+      });
       it('db.search should resolve with a JWT token', async function () {
         const token = await promise;
         assert.deepEqual(token, 'token');

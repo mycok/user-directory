@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { compareSync } from 'bcryptjs';
+import { sign } from 'jsonwebtoken';
 
 import db from '../../database/elasticsearch-setup';
 import dbQueryParams from '../../database/dbQueryParams';
@@ -34,9 +35,8 @@ import generateErrResponses from '../../utils/errors';
 import hashPassword from '../../utils/hashPassword';
 
 import checkDuplicates from '../../middleware/check-duplicates';
-
-// to be replaced by a JWT library sign function
-const sign = () => {};
+import authenticate from '../../middleware/authenticate';
+import authorize from '../../middleware/authorize';
 
 const controllerToEngineMap = new Map([
   [createUser, create],
@@ -106,7 +106,7 @@ router.route('/users/:userId')
     compareSync,
     sign,
   ))
-  .delete(injectControllerDependencies(
+  .delete(authenticate, authorize, injectControllerDependencies(
     deleteUser,
     db,
     controllerToEngineMap,
@@ -122,7 +122,7 @@ router.route('/users/:userId')
   ));
 
 router.route('/users/:userId/profile')
-  .patch(injectControllerDependencies(
+  .patch(authenticate, authorize, injectControllerDependencies(
     updateProfile,
     db,
     controllerToEngineMap,
@@ -136,7 +136,7 @@ router.route('/users/:userId/profile')
     compareSync,
     sign,
   ))
-  .put(injectControllerDependencies(
+  .put(authenticate, authorize, injectControllerDependencies(
     replaceProfile,
     db,
     controllerToEngineMap,

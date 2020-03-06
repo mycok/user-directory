@@ -1,9 +1,10 @@
 import { Given, Before } from 'cucumber';
+import chance from 'chance';
 import db from '../../../src/database/elasticsearch-setup';
 import hashPassword from '../../../src/utils/hashPassword';
 
 const client = db;
-
+const Chance = chance.Chance();
 Before(function () {
   return client.indices.delete({
     index: process.env.ELASTICSEARCH_INDEX,
@@ -15,7 +16,7 @@ Before(function () {
 async function createUser() {
   const user = {};
   const password = 'paSSword#45';
-  user.email = 'test@email.com';
+  user.email = Chance.email({ domain: 'test.com' });
   user.password = hashPassword(password);
   const result = await client.index({
     index: process.env.ELASTICSEARCH_INDEX,
@@ -27,14 +28,25 @@ async function createUser() {
     },
     refresh: true,
   });
-  user.id = result._id;
+  user._id = result._id;
   return user;
 }
 
-Given('1 new user is created with random password and email', async function () {
-  const { email, password } = await createUser();
+function createUsers(count) {
+  return Promise.all(Array.from(Array(count), createUser));
+}
+
+Given(/^(\w+) new users? (?:is|are) created with random password and email$/, async function (amount) {
+  const count = Number.isNaN(parseInt(amount, 10)) ? 1 : parseInt(amount, 10);
+  this.users = await createUsers(count);
+
+  if (count > 1) {
+    this.user1Id = this.users[1]._id;
+  }
+
+  const { email, _id } = this.users[0];
   this.email = email;
-  this.password = password;
+  this.userId = _id;
 });
 
 

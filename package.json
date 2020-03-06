@@ -49,6 +49,7 @@
     "@babel/node": "^7.7.4",
     "@babel/preset-env": "^7.7.6",
     "@babel/register": "^7.7.4",
+    "chance": "^1.1.4",
     "cucumber": "^6.0.5",
     "dotenv-cli": "^3.1.0",
     "eslint": "^6.7.2",
@@ -71,6 +72,7 @@
     "ajv": "^6.10.2",
     "bcryptjs": "^2.4.3",
     "elasticsearch": "^16.5.0",
-    "express": "^4.17.1"
+    "express": "^4.17.1",
+    "jsonwebtoken": "^8.5.1"
   }
 }

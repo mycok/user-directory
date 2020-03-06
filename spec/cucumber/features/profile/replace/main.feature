@@ -1,14 +1,67 @@
 Feature: Replace User Profile
- Feature Description:
-   Clients should be able to send a request to our API in order to update user profiles.
-   Our API should validate the structure of the request payload and respond with an
-   appropriate error in case the payload is invalid.
+    Feature Description:
+    Clients should be able to send a request to our API in order to update user profiles.
+    Our API should validate the structure of the request payload and respond with an
+    appropriate error in case the payload is invalid.
+
+    Background: Create two New Users and logs in using the Firt user credentials
+        Given all documents of type 'user' are deleted
+        Given 2 new users are created with random password and email
+        When a client creates a POST request to /login
+        And it attaches a valid Login payload
+        And it sends the request
+        And it saves the response text in the context under token
+
+    Scenario: Authorization Header Missing
+        When a client creates a PUT request to /users/:userId/profile
+        And it attaches a valid Update User Profile payload
+        And it sends the request
+        Then our API should respond with a 401 HTTP status code
+        And the payload of the response should be a JSON object
+        And should contain a message property stating that "The authorization header must be set"
+
+    Scenario Outline: Wrong Authorization Header
+        When a client creates a PUT request to /users/:userId/profile
+        And it sets the HTTP header field "Authorization" to "<header>"
+        And it attaches a valid Update User Profile payload
+        And it sends the request
+        Then our API should respond with a 400 HTTP status code
+        And the payload of the response should be a JSON object
+        And should contain a message property stating that "The authorization header should use the Bearer scheme"
+
+        Examples:
+            | header                |
+            | Basic e@ma.il:hunter2 |
+
+    Scenario Outline: Invalid Token Format
+        When a client creates a PUT request to /users/:userId/profile
+        And it sets the HTTP header field "Authorization" to "Bearer <token>"
+        And it attaches a valid Update User Profile payload
+        And it sends the request
+        Then our API should respond with a 400 HTTP status code
+        And the payload of the response should be a JSON object
+        And should contain a message property stating that "The credentials used in the Authorization header should be a valid bcrypt digest"
+
+        Examples:
+            | token                                                        |
+            | 6g3$d21"dfG9),Ol;UD6^UG4D£SWerCSfgiJH323£!AzxDCftg7yhjYTEESF |
+            | $2a$10$BZze4nPsa1D8AlCue76.sec8Z/Wn5BoG4kXgPqoEfYXxZuD27PQta |
+
+    Scenario: Update Self With Wrong Token Signature
+        When a client creates a PUT request to /users/:userId/profile
+        And it sets the Authorization header to a token with a wrong signature
+        And it attaches a valid Update User Profile payload
+        And it sends the request
+        Then our API should respond with a 400 HTTP status code
+        And the payload of the response should be a JSON object
+        And should contain a message property stating that "Invalid token signature"
 
     Scenario: Not Found Bad Request
-    if a client sends a PUT request to /users/:userId/profile with an unsupported payload,
-    it should recieve a response with a 4xxx status code.
-    
+        if a client sends a PUT request to /users/:userId/profile with an unsupported payload,
+        it should recieve a response with a 4xxx status code.
+
         When a client creates a PUT request to /users/userId/profile
+        And it sets the Authorization header to a valid token signature
         And it attaches a valid Update User Profile payload
         And it sends the request
         Then our API should respond with a 404 HTTP status code
@@ -16,10 +69,11 @@ Feature: Replace User Profile
         And should contain a message property stating that "Not Found"
 
     Scenario Outline: Bad Requests
-    if a client sends a PUT request to /users/:userId/profile with an unsupported payload,
-    it should recieve a response with a 4xxx status code.
+        if a client sends a PUT request to /users/:userId/profile with an unsupported payload,
+        it should recieve a response with a 4xxx status code.
 
         When a client creates a PUT request to /users/:userId/profile
+        And it sets the Authorization header to a valid token signature
         And it attaches a generic <payloadType> payload
         And it sends the request
         Then our API should respond with a <statusCode> HTTP status code
@@ -27,38 +81,30 @@ Feature: Replace User Profile
         And should contain a message property stating that <message>
 
         Examples:
-        | payloadType    | statusCode | message                                                                |
-        | empty          | 400        | "Payload should not be empty"                                          |
-        | malformed JSON | 400        | "Payload should be in JSON format"                                     |
-        | non JSON       | 415        | 'The "Content-Type" header property must always be "application/json"' |
+            | payloadType    | statusCode | message                                                                |
+            | empty          | 400        | "Payload should not be empty"                                          |
+            | malformed JSON | 400        | "Payload should be in JSON format"                                     |
+            | non JSON       | 415        | 'The "Content-Type" header property must always be "application/json"' |
 
     Scenario Outline: Profile Payload With Additional Properties
-     Given a client creates a POST request to /users
-        And it attaches a valid Create User payload
-        And it sends the request
-        And it saves the response text in the context under userId
-    
-      When a client creates a PUT request to /users/:userId/profile
+        When a client creates a PUT request to /users/:userId/profile
+        And it sets the Authorization header to a valid token signature
         And it attaches an Update User Profile payload with additional <additionalField> fields
         And it sends the request
         Then our API should respond with a 400 HTTP status code
         And the payload of the response should be a JSON object
         And should contain a message property stating that "<message>"
         And the entity of type user, with ID stored under userId, should be deleted
-    
-     Examples:
-    | additionalField | message                                                |
-    | foo             | The '.profile' object does not support the field 'foo' |
-    | foo, bar        | The '.profile' object does not support the field 'foo' |
+
+        Examples:
+            | additionalField | message                                                |
+            | foo             | The '.profile' object does not support the field 'foo' |
+            | foo, bar        | The '.profile' object does not support the field 'foo' |
 
 
     Scenario Outline: Profile Payload With Properties Of Unsupported Type
-        Given a client creates a POST request to /users
-            And it attaches a valid Create User payload
-            And it sends the request
-            And it saves the response text in the context under userId
-
         When a client creates a PUT request to /users/:userId/profile
+        And it sets the Authorization header to a valid token signature
         And it attaches an Update User Profile payload where the <field> field is not a <type>
         And it sends the request
         Then our API should respond with a 400 HTTP status code
@@ -67,34 +113,26 @@ Feature: Replace User Profile
         And the entity of type user, with ID stored under userId, should be deleted
 
         Examples:
-        | field       | type   |
-        | bio         | string |
-        | summary     | string |
-        | name        | object |
-        | name.first  | string |
-        | name.middle | string |
-        | name.last   | string |
+            | field       | type   |
+            | bio         | string |
+            | summary     | string |
+            | name        | object |
+            | name.first  | string |
+            | name.middle | string |
+            | name.last   | string |
 
 
     Scenario: Minimal Valid Profile Replacement
-        Given a client creates a POST request to /users
-            And it attaches a valid Create User payload
-            And it sends the request
-            And it saves the response text in the context under userId
-    
         When a client creates a PUT request to /users/:userId/profile
+        And it sets the Authorization header to a valid token signature
         And it attaches a valid Update User Profile payload
         And it sends the request
         Then our API should respond with a 200 HTTP status code
         And the payload of the response should be a JSON object
 
     Scenario Outline: Valid Profile Replacement
-        Given a client creates a POST request to /users
-            And it attaches a valid Create User payload
-            And it sends the request
-            And it saves the response text in the context under userId
-    
         When a client creates a PUT request to /users/:userId/profile
+        And it sets the Authorization header to a valid token signature
         And it attaches <payload> as payload
         And it sends the request
         Then our API should respond with a 200 HTTP status code
@@ -108,9 +146,9 @@ Feature: Replace User Profile
         And the entity of type user, with ID stored under userId, should be deleted
 
         Examples:
-        | payload                                                                                      |
-        | {"name":{}}                                                                                  |
-        | {"name":{"first":"Michael"}}                                                                 |
-        | {"bio":"bio"}                                                                                |
-        | {"summary":"summary"}                                                                        |
-        | {"name":{"first":"Michael","last":"Myco","middle":"Myckie"},"bio":"bio","summary":"summary"} |
+            | payload                                                                                      |
+            | {"name":{}}                                                                                  |
+            | {"name":{"first":"Michael"}}                                                                 |
+            | {"bio":"bio"}                                                                                |
+            | {"summary":"summary"}                                                                        |
+            | {"name":{"first":"Michael","last":"Myco","middle":"Myckie"},"bio":"bio","summary":"summary"} |

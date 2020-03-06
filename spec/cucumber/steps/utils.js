@@ -6,8 +6,8 @@ function getValidPayload(type, context = {}) {
     case 'create user':
     case 'login':
       return {
-        email: 'test@email.com' || context.email,
-        password: 'paSSword#45' || context.password,
+        email: context.email || 'test@email.com',
+        password: context.password || 'paSSword#45',
       };
     case 'update user profile':
       return {

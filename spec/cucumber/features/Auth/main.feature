@@ -7,7 +7,7 @@ Feature: User Login
 
   Scenario: Login user with wrong email
     When a client creates a POST request to /login
-    And it attaches {"email": "wrongemail@email.com", "password": "paSSword#45"} as payload
+    And it attaches a Login payload where the email field is exactly wrong@email.com
     And it sends the request
     Then our API should respond with a 404 HTTP status code
     And the payload of the response should be a JSON object
@@ -15,7 +15,7 @@ Feature: User Login
 
   Scenario: Login user with wrong password
     When a client creates a POST request to /login
-    And it attaches {"email": "test@email.com", "password": "paSword#45"} as payload
+    And it attaches a Login payload where the password field is exactly paSword#45
     And it sends the request
     Then our API should respond with a 401 HTTP status code
     And the payload of the response should be a JSON object
@@ -27,6 +27,5 @@ Feature: User Login
     And it sends the request
     Then our API should respond with a 200 HTTP status code
     And the payload of the response should be a string
-    And the string should contain the word token
-
-
+    And the response token should satisfy the regular expression /^[\w-]+\.[\w-]+\.[\w-.+\/=]*$/
+    And the JWT payload should have a claim with name sub equal to context.userId
