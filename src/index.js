@@ -4,7 +4,9 @@ import checkForEmptyPayload from './middleware/check-empty-payload';
 import checkIfContentTypeIsSet from './middleware/check-content-type';
 import checkIfContentTypeIsJson from './middleware/check-content-type-is-json';
 import errorHandler from './middleware/error-handler';
+
 import userRouter from './routes/user';
+import logger from './utils/logger';
 
 const app = express();
 
@@ -17,10 +19,6 @@ app.use(express.urlencoded({ extended: true }));
 app.use(userRouter);
 app.use(errorHandler);
 
-app.listen(`${process.env.PORT}`, () => {
-  console.log(`
-  ---------------------------------------------------------
-  user-directory server listening on port ${process.env.PORT}
-  ---------------------------------------------------------
-  `);
-});
+app.listen(`${process.env.PORT}`, () => logger.info(
+  `************user-directory server listening on port ${process.env.PORT}****************`,
+));
