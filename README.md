@@ -5,3 +5,5 @@
 
 Add, fetch, search, update, replace and delete user records through an intuitive REST-API powered by node-express framework.
 
+[checkout the documentation here!](https://dashboard.heroku.com/apps/user-directory-api)
+

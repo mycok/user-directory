@@ -1,0 +1,540 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "User Directory",
+    "version": "1.0.0",
+    "contact": {
+      "name": "myco",
+      "email": "mycovan@gmail.com"
+    }
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8080/",
+      "description": "Local development server"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Authentication",
+      "description": "Authentication related endpoints"
+    },
+    {
+      "name": "Users",
+      "description": "User related endpoints"
+    },
+    {
+      "name": "Profile",
+      "description": "Profile related endpoints"
+    }
+  ],
+  "components": {
+    "responses": {
+      "Success": {
+        "description": "OK",
+        "content": {
+          "text/plain": {
+            "schema": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "Login Success": {
+        "description": "Successfully loggedIn",
+        "content": {
+          "text/plain": {
+            "schema": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "UserRetrieved": {
+        "description": "Retrieved a single user object",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/retreivedUser"
+            }
+          }
+        }
+      },
+      "Created": {
+        "description": "User successfully created",
+        "content": {
+          "text/plain": {
+            "schema": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "Not Found": {
+        "description": "User Not Found",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "Content Header Error": {
+        "description": "Unsupported content-type header type",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "Generic Server Error": {
+        "description": "Internal server error",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "Bad Request": {
+        "description": "Bad request",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "Unauthorized": {
+        "description": "Unauthorized",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "Forbidden": {
+        "description": "Forbidden",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      }
+    },
+    "schemas": {
+      "Profile": {
+        "title": "User Profile",
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "object",
+            "properties": {
+              "first": {
+                "type": "string"
+              },
+              "middle": {
+                "type": "string"
+              },
+              "last": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          },
+          "bio": {
+            "type": "string"
+          },
+          "summary": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "retreivedUser": {
+        "title": "Retrieved user payload schema",
+        "description": "A user object with the password removed",
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "profile": {
+            "$ref": "#/components/schemas/Profile"
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "email",
+          "password"
+        ]
+      },
+      "Error": {
+        "title": "Error",
+        "type": "object",
+        "properties": {
+          "message": {
+            "description": "Error",
+            "type": "string"
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "token": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  },
+  "paths": {
+    "/login": {
+      "post": {
+        "tags": [
+          "Authentication"
+        ],
+        "summary": "Perform password-based authentication",
+        "description": "Returns a JWT token upon success",
+        "requestBody": {
+          "description": "User credentials",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "format": "email"
+                  },
+                  "password": {
+                    "type": "string",
+                    "pattern": "/^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])(?=.{8,})/"
+                  }
+                }
+              },
+              "example": {
+                "email": "test@email.com",
+                "password": "passWord$65"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/Login Success"
+          },
+          "400": {
+            "$ref": "#/components/responses/Not Found"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/Not Found"
+          },
+          "500": {
+            "$ref": "#/components/responses/Generic Server Error"
+          }
+        }
+      }
+    },
+    "/users": {
+      "post": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Creates a new user object",
+        "description": "When a POST request is sent with all the valid user field values, a new user is created and a userId is returned as a response.\n",
+        "requestBody": {
+          "description": "New user object",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "format": "email"
+                  },
+                  "password": {
+                    "type": "string",
+                    "pattern": "/^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])(?=.{8,})/"
+                  },
+                  "profile": {
+                    "$ref": "#/components/schemas/Profile",
+                    "required": [
+                      "email",
+                      "password"
+                    ],
+                    "example": {
+                      "email": "test@email.com",
+                      "password": "passWord$65",
+                      "profile": {
+                        "bio": "Aspiring software developer with intense passion for javascript",
+                        "summary": "Software developer",
+                        "name": {
+                          "first": "Myko",
+                          "last": "kibuu"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "$ref": "#/components/responses/Created"
+          },
+          "400": {
+            "$ref": "#/components/responses/Bad Request"
+          },
+          "415": {
+            "$ref": "#/components/responses/Content Header Error"
+          },
+          "500": {
+            "$ref": "#/components/responses/Generic Server Error"
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Search and return all users that match the provided query string",
+        "parameters": [
+          {
+            "name": "query",
+            "in": "query",
+            "description": "search query",
+            "schema":{
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/UserRetrieved"
+          },
+          "400": {
+            "$ref": "#/components/responses/Bad Request"
+          },
+          "404": {
+            "$ref": "#/components/responses/Not Found"
+          },
+          "500": {
+            "$ref": "#/components/responses/Generic Server Error"
+          }
+        }
+      }
+    },
+    "/users/{userId}": {
+      "get": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Fetch a single user",
+        "description": "Returns a user that matches the provided userId",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "description": "The _id of the user to retrieve from the database",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/UserRetrieved"
+          },
+          "400": {
+            "$ref": "#/components/responses/Bad Request"
+          },
+          "404": {
+            "$ref": "#/components/responses/Not Found"
+          },
+          "500": {
+            "$ref": "#/components/responses/Generic Server Error"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Delete a user",
+        "description": "Delete a user matching the provided ID",
+        "security": [
+          {
+            "token": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "description": "The ID of the user to be deleted",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/Success"
+          },
+          "400": {
+            "$ref": "#/components/responses/Not Found"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/Not Found"
+          },
+          "415": {
+            "$ref": "#/components/responses/Content Header Error"
+          },
+          "500": {
+            "$ref": "#/components/responses/Generic Server Error"
+          }
+        }
+      }
+    },
+    "/users/{userId}/profile": {
+      "put": {
+        "tags": [
+          "Profile"
+        ],
+        "security": [
+          {
+            "token": []
+          }
+        ],
+        "summary": "Replaces the user's profile information with the provided profile payload",
+        "description": "When a user sends a PUT request with a profile payload, the user's profile object is replaced by the new payload data\n",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "description": "The ID of the user whose profile is to be replaced",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "New Profile object",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Profile"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/Success"
+          },
+          "400": {
+            "$ref": "#/components/responses/Not Found"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/Not Found"
+          },
+          "415": {
+            "$ref": "#/components/responses/Content Header Error"
+          },
+          "500": {
+            "$ref": "#/components/responses/Generic Server Error"
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "Profile"
+        ],
+        "security": [
+          {
+            "token": []
+          }
+        ],
+        "summary": "Updates the user's profile information with the provided profile payload",
+        "description": "When a user sends a PATCH request with a profile payload, the user's profile object is updated by the new payload data\n",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "description": "The ID of the user whose profile is to be updated",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Update Profile object",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Profile"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/Success"
+          },
+          "400": {
+            "$ref": "#/components/responses/Not Found"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/Not Found"
+          },
+          "415": {
+            "$ref": "#/components/responses/Content Header Error"
+          },
+          "500": {
+            "$ref": "#/components/responses/Generic Server Error"
+          }
+        }
+      }
+    }
+  }
+}
