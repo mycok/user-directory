@@ -24,5 +24,4 @@ yarn-error.log*
 **.log
 .nyc_output
 /envs
-
-
+.vscode/*

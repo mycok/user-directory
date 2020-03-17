@@ -12,7 +12,7 @@ RETRY_LIMIT=50
 RETRY_INTERVAL=0.2
 SERVER_UP=false
 while [ $TRIES -lt $RETRY_LIMIT ]; do
-  if netstat -tulpn 2>/dev/null | grep -q ":$SERVER_PORT_TEST.*LISTEN"; then
+  if netstat -tulpn 2>/dev/null | grep -q ":$PORT.*LISTEN"; then
     SERVER_UP=true
     break
   else
